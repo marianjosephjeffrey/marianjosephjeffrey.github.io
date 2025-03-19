@@ -216,6 +216,101 @@ body {
 #project-cards .card {
     cursor: pointer;
 }
+/* ✅ Timeline Container */
+.timeline {
+    position: relative;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* ✅ Timeline Vertical Line */
+.timeline::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    background-color: #007BFF;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* ✅ Timeline Item */
+.timeline-item {
+    position: relative;
+    width: 50%;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ✅ Date Styling */
+.timeline-date {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #007BFF;
+    margin-bottom: 10px;
+}
+
+/* ✅ Alternate Positioning */
+.timeline-item:nth-child(odd) {
+    left: 0;
+    text-align: right;
+}
+
+.timeline-item:nth-child(even) {
+    left: 50%;
+    text-align: left;
+}
+
+/* ✅ Timeline Content Cards */
+.timeline-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* ✅ Circle Indicator */
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #007BFF;
+    border-radius: 50%;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+/* ✅ Hover Effect */
+.timeline-content:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* ✅ Responsive Design */
+@media screen and (max-width: 768px) {
+    .timeline::before {
+        left: 20px;
+    }
+
+    .timeline-item {
+        width: 100%;
+        left: 0 !important;
+        text-align: left;
+    }
+
+    .timeline-item::before {
+        left: 10px;
+    }
+}
 
 /* ✅ Footer */
 footer {
