@@ -32,7 +32,7 @@ function fetchMediumPosts() {
             postsContainer.innerHTML = ""; // Clear previous content
 
             if (data.status === "ok" && data.items.length > 0) {
-                data.items.slice(0, 10).forEach(item => { // Limit to 6 latest posts
+                data.items.slice(0, 20).forEach(item => { // Limit to 6 latest posts
                     const card = document.createElement("div");
                     card.className = "card";
 
