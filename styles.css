@@ -9,22 +9,22 @@ body {
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Make header bigger and style it */
+/* ✅ Header Styling */
 .topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 40px; /* Increased padding for a bigger header */
-    background-color: #ffffff; /* White background */
+    padding: 20px 40px;
+    background-color: #ffffff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Logo styling */
+/* ✅ Logo Styling */
 .logo img {
-    height: 60px; /* Increased size for a bigger header */
+    height: 60px;
 }
 
-/* Navigation styles */
+/* ✅ Navigation */
 .nav-links ul {
     list-style: none;
     display: flex;
@@ -33,25 +33,22 @@ body {
     padding: 0;
 }
 
-/* Style the links */
 .nav-links ul li {
     display: inline;
 }
 
 .nav-links ul li a {
     text-decoration: none;
-    color: #333; /* Dark text color */
-    font-size: 18px; /* Increase font size */
+    color: #333;
+    font-size: 18px;
     font-weight: bold;
     padding: 10px 15px;
     transition: color 0.3s ease-in-out;
 }
 
-/* Hover effect */
 .nav-links ul li a:hover {
-    color: #007bff; /* Change color on hover */
+    color: #007bff;
 }
-
 
 /* ✅ Mobile-Friendly Navigation */
 @media (max-width: 768px) {
@@ -70,165 +67,29 @@ body {
 
 /* ✅ Content Container */
 .container {
-    max-width: 1400px;
+    max-width: 900px;
     margin: auto;
     padding: 15px;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     animation: fadeIn 1s ease-in-out;
-    margin-top: 80px; /* Adjusts for fixed header */
+    margin-top: 80px;
 }
 
-/* ✅ Medium Posts Section */
-#medium-posts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    padding: 20px;
-    max-width: 100%;
-    justify-content: center;
-}
-
-/* ✅ Card Styling */
-.card {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    padding: 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    min-height: 300px;
-}
-
-/* ✅ Image Styling for Cards */
-.card img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-}
-
-/* ✅ Title & Text Styling */
-.card h2 {
-    padding: 15px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #1c1e21;
-    margin: 0;
-    line-height: 1.4;
-}
-
-/* ✅ Medium Post Description */
-.card .post-description {
-    padding: 15px;
-    color: #444;
-    font-size: 0.95em;
-    line-height: 1.5;
-    max-height: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
-}
-
-/* ✅ Post Date Styling */
-.card .post-date {
-    padding: 15px;
-    color: #65676b;
-    font-size: 0.85em;
-}
-
-/* ✅ Read More Button */
-.card a {
-    padding: 15px;
-    text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
-    display: inline-block;
-    margin-top: auto;
-    transition: color 0.2s ease-in-out;
-}
-
-.card a:hover {
-    color: #0056b3;
-    text-decoration: underline;
-}
-
-/* ✅ Dark Mode */
-.dark-mode {
-    background: #222;
-    color: white;
-}
-
-.dark-mode header,
-.dark-mode nav,
-.dark-mode footer {
-    background: rgba(0, 0, 0, 0.8);
-}
-
-.dark-mode .card {
-    background: rgba(45, 45, 45, 0.95);
-    color: #ddd;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dark-mode .card h2 {
-    color: white;
-}
-
-.dark-mode .card p {
-    color: #ddd;
-}
-
-.dark-mode .card a {
-    color: #4a90e2;
-}
-
-.dark-mode .card a:hover {
-    color: #82b1ff;
-}
-
-#projects-section {
-    padding: 20px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-#project-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    padding: 20px;
-    max-width: 100%;
-    justify-content: center;
-}
-
-/* Ensure the projects use the same card styling */
-#project-cards .card {
-    cursor: pointer;
-}
 /* ✅ Timeline Container */
 .timeline {
     position: relative;
-    max-width: 900px;
+    max-width: 800px;
     margin: auto;
-    padding: 20px;
+    padding: 20px 0;
 }
 
 /* ✅ Timeline Vertical Line */
 .timeline::before {
     content: '';
     position: absolute;
-    width: 4px;
+    width: 3px;
     background-color: #007BFF;
     top: 0;
     bottom: 0;
@@ -240,42 +101,29 @@ body {
 .timeline-item {
     position: relative;
     width: 50%;
-    padding: 10px;
+    padding: 20px 0;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    min-height: 100px;
 }
 
 /* ✅ Alternate Left & Right Positioning */
 .timeline-item:nth-child(odd) {
     left: 0;
     text-align: right;
+    justify-content: flex-end;
+    padding-right: 40px;
 }
 
 .timeline-item:nth-child(even) {
     left: 50%;
     text-align: left;
+    justify-content: flex-start;
+    padding-left: 40px;
 }
 
-/* ✅ Date Styling */
-.timeline-date {
-    font-size: 0.9em;
-    font-weight: bold;
-    color: #007BFF;
-    margin-bottom: 5px;
-}
-
-/* ✅ Timeline Content Cards */
-.timeline-content {
-    background: white;
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    position: relative;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    max-width: 95%;
-    font-size: 0.95em;
-}
-
-/* ✅ Circle Indicator */
+/* ✅ Circle Indicator (Now Properly Next to Timeline) */
 .timeline-item::before {
     content: '';
     position: absolute;
@@ -283,10 +131,71 @@ body {
     height: 12px;
     background-color: #007BFF;
     border-radius: 50%;
-    top: 15px;
-    left: 50%;
+    left: 100%;
     transform: translateX(-50%);
+    top: 0%;
+    margin-top: -6px;
     z-index: 2;
+}
+/* ✅ Left Side (Odd Items) - Align Dot */
+.timeline-item:nth-child(odd)::before {
+    left: calc(100%); /* Keeps left-side dots near the timeline */
+}
+
+/* ✅ Right Side (Even Items) - Move Dot to Center */
+.timeline-item:nth-child(even)::before {
+    left: 0%; /* Moves dot to center of the timeline */
+    transform: translateX(-50%);
+}
+/* ✅ Timeline Date (Now Closer to the Circle) */
+.timeline-date {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #007BFF;
+    position: absolute;
+    top: 0%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+}
+
+/*.timeline-item:nth-child(odd) .timeline-date {
+    right: calc(50% + 20px); 
+}
+
+.timeline-item:nth-child(even) .timeline-date {
+    left: calc(50% - 10px); 
+}*/
+
+/* ✅ Left Side (Odd Items) - Date Placement */
+.timeline-item:nth-child(odd) .timeline-date {
+    right: calc(); /* Moves date closer to the line */
+}
+
+/* ✅ Right Side (Even Items) - Date Placement */
+.timeline-item:nth-child(even) .timeline-date {
+    left: calc(); /* Moves date closer to the line */
+}
+/* ✅ Timeline Content Cards (Compact, Properly Spaced) */
+.timeline-content {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    max-width: 300px;
+    min-height: 80px;
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* ✅ Ensure Text Inside Cards is Centered */
+.timeline-content h3,
+.timeline-content p {
+    margin: 5px 0;
+    text-align: center;
 }
 
 /* ✅ Hover Effect */
@@ -305,6 +214,7 @@ body {
         width: 100%;
         left: 0 !important;
         text-align: left;
+        justify-content: flex-start;
         padding-left: 40px;
     }
 
@@ -314,6 +224,12 @@ body {
 
     .timeline-content {
         max-width: 100%;
+        text-align: left;
+        min-height: auto;
+    }
+
+    .timeline-date {
+        left: 40px !important;
     }
 }
 
