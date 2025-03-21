@@ -6,7 +6,8 @@
     <title>My Projects</title>
     
     <!-- Link to External Styles -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="projects.css">
 </head>
 <body>
 
@@ -15,10 +16,8 @@
 
     <div class="container">
         <h1>My Projects</h1>
-        <div id="projects-section">
-            <div id="project-cards">
-                <!-- Projects will be loaded dynamically using JavaScript -->
-            </div>
+        <div id="projects">
+            <!-- Projects will be loaded dynamically using JavaScript -->
         </div>
     </div>
 
@@ -26,10 +25,10 @@
     <div id="footer-container"></div>
 
     <!-- Load Header & Footer -->
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 
     <!-- Load Projects Data -->
-    <script src="projects.js"></script>
+    <script src="projects.js" defer></script>
 
 </body>
 </html>
