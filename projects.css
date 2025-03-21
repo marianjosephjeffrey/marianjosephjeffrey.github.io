@@ -18,13 +18,23 @@
     padding: 15px;
 }
 
+/* ✅ README Content */
+.readme-content {
+    background: #f8f8f8;
+    padding: 10px;
+    border-radius: 5px;
+    overflow: auto;
+    max-height: 300px; /* Prevents very long README files from taking too much space */
+    font-size: 0.9em;
+    color: #333;
+}
 .project-card:hover {
     transform: scale(1.05);
 }
 
-/* Project Details */
+/* ✅ Project Details */
 .project-details {
-    padding: 10px;
+    padding: 10px 0;
 }
 
 .project-details h3 {
@@ -33,15 +43,16 @@
     color: #007bff;
 }
 
-.project-details p {
-    font-size: 0.95em;
-    color: #555;
+
+/* ✅ Project Duration */
+.project-details p strong {
+    color: #333;
 }
 
-/* Project Links */
+/* ✅ GitHub Link (Left Aligned) */
 .project-links {
-    text-align: center;
-    margin-top: 10px;
+    padding: 10px 0;
+    text-align: left; /* Aligns the GitHub link to the left */
 }
 
 .project-links a {
