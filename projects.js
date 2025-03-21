@@ -1,38 +1,38 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const projects = [
-        {
-            title: "Project 1",
-            description: "A short description of Project 1.",
-            image: "project1.jpg",
-            link: "https://github.com/yourusername/project1"
-        },
-        {
-            title: "Project 2",
-            description: "A short description of Project 2.",
-            image: "project2.jpg",
-            link: "https://your-live-demo.com"
-        },
-        {
-            title: "Project 3",
-            description: "A short description of Project 3.",
-            image: "project3.jpg",
-            link: "https://github.com/yourusername/project3"
+document.addEventListener("DOMContentLoaded", function () {
+    const username = "marianjosephjeffrey";  // Your GitHub username
+    const apiUrl = `https://api.github.com/users/${username}/repos`;
+
+    const projectContainer = document.getElementById("projects");
+
+    fetch(apiUrl)
+    .then(response => response.json())
+    .then(repositories => {
+        if (!Array.isArray(repositories)) {
+            console.error("Invalid API response:", repositories);
+            return;
         }
-    ];
 
-    const projectContainer = document.getElementById("project-cards");
+        // Filter out unwanted repos (like the default profile README repo)
+        const filteredRepos = repositories.filter(repo => 
+            repo.name !== username.toLowerCase() && !repo.fork
+        );
 
-    projects.forEach(project => {
-        const projectCard = document.createElement("div");
-        projectCard.classList.add("card");
+        filteredRepos.forEach(repo => {
+            const projectCard = document.createElement("div");
+            projectCard.classList.add("project-card");
 
-        projectCard.innerHTML = `
-            <img src="${project.image}" alt="${project.title}">
-            <h2>${project.title}</h2>
-            <p class="post-description">${project.description}</p>
-            <a href="${project.link}" target="_blank">View Project</a>
-        `;
+            projectCard.innerHTML = `
+                <div class="project-details">
+                    <h3>${repo.name.replace(/-/g, " ")}</h3>
+                    <p>${repo.description ? repo.description : "No description available."}</p>
+                    <div class="project-links">
+                        <a href="${repo.html_url}" target="_blank">View on GitHub</a>
+                    </div>
+                </div>
+            `;
 
-        projectContainer.appendChild(projectCard);
-    });
+            projectContainer.appendChild(projectCard);
+        });
+    })
+    .catch(error => console.error("Error fetching GitHub projects:", error));
 });

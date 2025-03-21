@@ -1,0 +1,55 @@
+/* ✅ Experience Section */
+.experience {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* ✅ Experience Item */
+.experience-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.experience-item:hover {
+    transform: scale(1.02);
+}
+
+/* ✅ Job Title */
+.experience-item h3 {
+    font-size: 1.3em;
+    color: #007bff;
+    margin-bottom: 5px;
+}
+
+/* ✅ Company Name */
+.experience-item .company {
+    font-size: 1em;
+    font-weight: bold;
+    color: #444;
+}
+
+/* ✅ Job Duration */
+.experience-item .duration {
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* ✅ Description */
+.experience-item p {
+    font-size: 0.95em;
+    color: #555;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+/* ✅ Responsive */
+@media (max-width: 768px) {
+    .experience {
+        width: 90%;
+    }
+}
