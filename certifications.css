@@ -1,0 +1,54 @@
+.badge-section {
+    margin-top: 40px;
+}
+
+.badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.badge-card {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    max-width: 250px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.badge-card:hover {
+    transform: scale(1.03);
+}
+
+.badge-card img {
+    width: 100%;
+    max-height: 150px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.badge-card strong {
+    display: block;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.badge-card span {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.tryhackme-section {
+    text-align: center;
+    margin-top: 60px;
+}
+
+.tryhackme-section h2 {
+    margin-bottom: 10px;
+}
