@@ -3,28 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certifications - Marian John</title>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="script.js"></script> <!-- Dynamically loads header/footer -->
+    <title>Certifications & CTFs - Marian John</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Your global styles -->
+    <link rel="stylesheet" href="certifications.css"> <!-- This file has badge-specific styles -->
+    <script defer src="script.js"></script> <!-- Header/footer loader -->
 </head>
 <body>
 
     <div id="header-container"></div> <!-- Header loads dynamically -->
 
     <div class="container">
-        <section>
+        <!-- Certifications Section -->
+        <section class="badge-section">
             <h2>Certifications</h2>
             <div class="badge-container">
-                <div class="badge-text">
-                    <strong>CompTIA Security+:</strong> Issued Jul 2024 · Expires Jul 2027
-                    <img src="1722444860954.jpg" class="badge" alt="CompTIA Security+ Badge">
+                <div class="badge-card">
+                    <strong>CompTIA Security+</strong>
+                    <span>Issued Jul 2024 · Expires Jul 2027</span>
+                    <img src="1722444860954.jpg" alt="CompTIA Security+ Badge">
                 </div>
-                
-                <div class="badge-text">
-                    <strong>eJPTv2:</strong> Issued Mar 2024 · Expires Mar 2027
-                    <img src="1710206175828.jpg" class="badge" alt="eJPTv2 Badge">
+
+                <div class="badge-card">
+                    <strong>eJPTv2</strong>
+                    <span>Issued Mar 2024 · Expires Mar 2027</span>
+                    <img src="1710206175828.jpg" alt="eJPTv2 Badge">
                 </div>
             </div>
+        </section>
+
+        <!-- CTF Badge Section -->
+        <section class="tryhackme-section">
+            <h2>CTFs Participation</h2>
+            <p>Here’s my TryHackMe badge showing ongoing learning and challenge completions:</p>
+            <script src="https://tryhackme.com/badge/1354624"></script>
         </section>
     </div>
 
