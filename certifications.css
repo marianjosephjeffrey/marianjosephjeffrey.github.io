@@ -3,45 +3,46 @@
 }
 
 .badge-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
 
 .badge-card {
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    padding: 15px 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    text-align: center;
-    max-width: 250px;
-    transition: transform 0.2s ease-in-out;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .badge-card:hover {
-    transform: scale(1.03);
-}
-
-.badge-card img {
-    width: 100%;
-    max-height: 150px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-top: 10px;
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
 }
 
 .badge-card strong {
-    display: block;
-    font-size: 1.1em;
-    margin-bottom: 5px;
-    color: #333;
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  color: #222;
 }
 
 .badge-card span {
-    font-size: 0.9em;
-    color: #666;
+  font-size: 0.9rem;
+  color: #666;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.badge-card img {
+  max-width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
 
 .tryhackme-section {
@@ -71,4 +72,48 @@
 
 .ncl-image-grid img:hover {
     transform: scale(1.02);
+}
+/* Layout grid for CTF cards */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* Card styles */
+.project-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+.project-details h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.project-details p {
+  margin: 0.2rem 0 1rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.project-links a.github-link {
+  text-decoration: none;
+  color: #3f51b5;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.project-links a.github-link:hover {
+  color: #1a237e;
 }
