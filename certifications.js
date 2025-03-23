@@ -15,19 +15,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       const projectCard = document.createElement("div");
       projectCard.classList.add("project-card");
 
-      const readmeUrl = `https://raw.githubusercontent.com/${username}/${project.name}/main/README.md`;
-      let readmeContent = "No README available.";
-
-      try {
-        const readmeResponse = await fetch(readmeUrl);
-        if (readmeResponse.ok) {
-          readmeContent = await readmeResponse.text();
-          readmeContent = marked.parse(readmeContent);
-        }
-      } catch (err) {
-        console.warn(`Could not fetch README for ${project.name}`);
-      }
-
       const createdDate = new Date(project.created_at);
       const updatedDate = new Date(project.updated_at);
       const duration = Math.round(
@@ -38,7 +25,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         <div class="project-details">
           <h3>${project.name.replace(/-/g, " ")}</h3>
           <p><strong>Duration:</strong> ${duration} days</p>
-          <div class="readme-content">${readmeContent}</div>
         </div>
         <div class="project-links">
           <a href="${project.html_url}" target="_blank" class="github-link">View on GitHub</a>
