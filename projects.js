@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   const username = "marianjosephjeffrey";
   const apiUrl = `https://api.github.com/users/${username}/repos`;
 
+  // Repos to exclude
+  const excludedRepos = ["marianjosephjeffrey", "marianjosephjeffrey.github.io"];
+
   try {
     const response = await fetch(apiUrl);
     const projects = await response.json();
@@ -9,10 +12,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     const projectContainer = document.getElementById("projects");
 
     for (const project of projects) {
+      // Skip excluded repos
+      if (excludedRepos.includes(project.name)) continue;
+
       const projectCard = document.createElement("div");
       projectCard.classList.add("project-card");
 
-      // Try to fetch details.md instead of README.md
       const detailsUrl = `https://raw.githubusercontent.com/${username}/${project.name}/main/details.md`;
       let detailsContent = "<em>No details available.</em>";
 
@@ -20,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const detailsResponse = await fetch(detailsUrl);
         if (detailsResponse.ok) {
           const rawMarkdown = await detailsResponse.text();
-          detailsContent = marked.parse(rawMarkdown); // Convert Markdown to HTML using Marked.js
+          detailsContent = marked.parse(rawMarkdown); // Convert Markdown to HTML
         }
       } catch (err) {
         console.warn(`No details.md found in ${project.name}`);
