@@ -40,9 +40,14 @@
 .project-details h3 {
     margin: 10px 0;
     font-size: 1.2em;
-    color: #007bff;
+    color: #1a1a1a;       /* deep, strong black-gray */
+    font-weight: 600;     /* bold but not screaming */
+    letter-spacing: -0.3px; /* tighter look */
 }
 
+.project-card:hover .project-details h3 {
+    color: #000; /* or a subtle accent like #111 or your primary brand color */
+}
 
 /* ✅ Project Duration */
 .project-details p strong {
