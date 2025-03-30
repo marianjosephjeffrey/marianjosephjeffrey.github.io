@@ -33,6 +33,22 @@ body {
     padding: 0;
 }
 
+/* If #projects is inside a sidebar, show as vertical list */
+.sidebar #projects {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0;
+  margin: 0;
+  max-width: 100%;
+}
+
+.sidebar .readme-content,
+.sidebar .details-content {
+  max-height: 200px;
+  overflow: auto;
+}
+
 .nav-links ul li {
     display: inline;
 }

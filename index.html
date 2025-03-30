@@ -1,37 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marian John's Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="script.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-     <link rel="icon" href="/favicon.svg" type="image/x-icon" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marian John's Portfolio</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
+  <script defer src="project.js"></script>
+  <link rel="stylesheet" href="project.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+  <link rel="icon" href="/favicon.svg" type="image/x-icon" />
 </head>
-
 <body>
+  <div id="header-container"></div>
 
-    <div id="header-container"></div> <!-- Header loads dynamically -->
-
-    <div class="container">
-        <h2>Welcome to My Portfolio</h2>
-        
-        <section class="container">
+  <div class="main-layout">
+    <!-- Main content (My Story & Medium Posts) -->
+    <div class="main-content">
+      <section>
         <h2>My Story</h2>
-        <p>I came to the United States from India to follow my passion for cybersecurity, graduating in May 2024 with a Master's degree in the field. The past two years have been a journey of challenges, learning, and growth. 
-        Throughout my coursework, I tackled numerous projects that helped shape my skills, and I created this website to showcase those projects, as I believe a resume alone doesn't do them justice. 
-        Beyond academics, I spent my spare time engaging in Capture The Flag (CTF) challenges, primarily on TryHackMe.</p>
-    	</section>
-        
-        <section>
-    		<h2>Recent Medium Posts</h2>
-    		<div id="medium-posts" class="posts-grid"></div>
-		</section>
-        
+        <p>
+          I came to the United States from India to follow my passion for cybersecurity, graduating in May 2024 with a Master's degree in the field. The past two years have been a journey of challenges, learning, and growth.
+          Throughout my coursework, I tackled numerous projects that helped shape my skills, and I created this website to showcase those projects, as I believe a resume alone doesn't do them justice.
+          Beyond academics, I spent my spare time engaging in Capture The Flag (CTF) challenges, primarily on TryHackMe.
+        </p>
+      </section>
+
+      <section>
+        <h2>Recent Medium Posts</h2>
+        <div id="medium-posts" class="posts-grid"></div>
+      </section>
     </div>
 
-    <div id="footer-container"></div> <!-- Footer loads dynamically -->
+    <!-- Sidebar (Projects) -->
+    <aside class="sidebar">
+      <h2>Projects</h2>
+      <div id="projects"></div>
+    </aside>
+  </div>
 
+  <div id="footer-container"></div>
 </body>
 </html>
