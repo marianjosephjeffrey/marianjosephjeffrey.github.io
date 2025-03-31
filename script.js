@@ -66,7 +66,79 @@ function fetchMediumPosts() {
         })
         .catch(error => console.error("Error fetching Medium posts:", error));
 }
+// ✅ Function: Fetch GitHub Contributions
+async function fetchGitHubContributions() {
+    const username = "marianbme"; // Replace with your GitHub username
+    const url = `https://api.github.com/users/${username}/repos`;
 
+    try {
+        const response = await fetch(url);
+
+        // ✅ Check if the response is OK
+        if (!response.ok) {
+            throw new Error(`GitHub API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const repos = await response.json();
+        console.log("GitHub Contributions:", repos); // Debugging API response
+
+        const contributionsContainer = document.getElementById("github-contributions");
+        if (!contributionsContainer) {
+            console.error("Error: 'github-contributions' container not found.");
+            return;
+        }
+
+        contributionsContainer.innerHTML = ""; // Clear previous content
+
+        if (repos.length === 0) {
+            contributionsContainer.innerHTML = "<p>No repositories found.</p>";
+            return;
+        }
+
+        repos.slice(0, 6).forEach(repo => { // Limit to 6 repos for better layout
+            const repoItem = document.createElement("div");
+            repoItem.classList.add("repo");
+
+            repoItem.innerHTML = `
+                <h3><a href="${repo.html_url}" target="_blank">${repo.name}</a></h3>
+                <p>${repo.description || "No description available"}</p>
+                <p>⭐ Stars: ${repo.stargazers_count} | 🍴 Forks: ${repo.forks_count}</p>
+            `;
+
+            contributionsContainer.appendChild(repoItem);
+        });
+    } catch (error) {
+        console.error("Error fetching GitHub contributions:", error);
+        document.getElementById("github-contributions").innerHTML = "<p>Error loading contributions. Check console for details.</p>";
+    }
+}
+
+// ✅ Function: Fetch LinkedIn Projects
+async function fetchProjectsFromLinkedIn() {
+    fetch("http://localhost:3000/fetch-projects") // Replace with API URL
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById("project-list");
+            if (!container) return;
+
+            container.innerHTML = ""; // Clear old data
+
+            if (data.projects.length > 0) {
+                data.projects.forEach(project => {
+                    const projectItem = document.createElement("div");
+                    projectItem.classList.add("project");
+                    projectItem.innerHTML = `
+                        <h3>${project.title}</h3>
+                        <p>${project.description}</p>
+                    `;
+                    container.appendChild(projectItem);
+                });
+            } else {
+                container.innerHTML = "<p>No projects found.</p>";
+            }
+        })
+        .catch(error => console.error("Error fetching LinkedIn projects:", error));
+}
 
 // ✅ Function: Fetch Header & Footer
 function fetchComponent(url, containerId) {
