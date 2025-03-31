@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", async function () {
+  console.log("✅ DOMContentLoaded triggered");
   const username = "marianjosephjeffrey";
   const apiUrl = `https://api.github.com/users/${username}/repos`;
+  console.log("🌐 Fetching repos from:", apiUrl);
 
   // Repos to exclude
   const excludedRepos = ["marianjosephjeffrey", "marianjosephjeffrey.github.io"];
@@ -10,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const projects = await response.json();
 
     const projectContainer = document.getElementById("projects");
+    console.log("🧱 Found project container:", projectContainer);
 
     for (const project of projects) {
       // Skip excluded repos
