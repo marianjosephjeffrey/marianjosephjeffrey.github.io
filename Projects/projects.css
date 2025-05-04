@@ -1,0 +1,71 @@
+/* Projects Grid */
+#projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Project Card */
+.project-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    padding: 15px;
+}
+
+/* ✅ README Content */
+.readme-content {
+    background: #f8f8f8;
+    padding: 10px;
+    border-radius: 5px;
+    overflow: auto;
+    max-height: 300px; /* Prevents very long README files from taking too much space */
+    font-size: 0.9em;
+    color: #333;
+}
+.project-card:hover {
+    transform: scale(1.05);
+}
+
+/* ✅ Project Details */
+.project-details {
+    padding: 10px 0;
+}
+
+.project-details h3 {
+    margin: 10px 0;
+    font-size: 1.2em;
+    color: #1a1a1a;       /* deep, strong black-gray */
+    font-weight: 600;     /* bold but not screaming */
+    letter-spacing: -0.3px; /* tighter look */
+}
+
+.project-card:hover .project-details h3 {
+    color: #000; /* or a subtle accent like #111 or your primary brand color */
+}
+
+/* ✅ Project Duration */
+.project-details p strong {
+    color: #333;
+}
+
+/* ✅ GitHub Link (Left Aligned) */
+.project-links {
+    padding: 10px 0;
+    text-align: left; /* Aligns the GitHub link to the left */
+}
+
+.project-links a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.project-links a:hover {
+    color: #0056b3;
+}
