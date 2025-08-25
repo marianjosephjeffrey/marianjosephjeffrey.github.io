@@ -15,9 +15,11 @@
 
     <div id="header-container"></div> <!-- Header loads dynamically -->
 	<script>
-  		window.onload = function() {
-    		alert("This is my old site. Please visit my new site: https://marianjosephjeffrey.com/");
-  		};
+	  window.onload = function() {
+	    if (confirm("This is my old site.\n\nClick OK to visit my new site:\nhttps://marianjosephjeffrey.com/")) {
+	      window.location.href = "https://marianjosephjeffrey.com/";
+	    }
+	  };
 	</script>
 
     <div class="container">
@@ -48,3 +50,4 @@
 </body>
 
 </html>
+
