@@ -478,30 +478,99 @@
     </div>
 
     <script>
-        // WRITEUPS DATA
-        // Add metadata for each of your writeup files here
-        const writeups = [
-            {
-                title: "KC7 - A Rap Beef",
-                filename: "KC7 - A Rap Beef.html",
-                difficulty: "medium",
-                category: "Digital Forensics",
-                description: "Investigation of a rap beef incident using digital forensics techniques, analyzing communication patterns and metadata.",
-                tools: ["Wireshark", "Log Analysis", "OSINT"],
-                date: "2024-02-15"
-            },
-            // Add more writeups here as you create them
-            // Example:
-            // {
-            //     title: "OWASP Top 10",
-            //     filename: "owasp-top-10.html",
-            //     difficulty: "medium",
-            //     category: "Web Security",
-            //     description: "Comprehensive exploration of OWASP Top 10 vulnerabilities",
-            //     tools: ["Burp Suite", "SQLmap", "ZAP"],
-            //     date: "2024-01-20"
-            // }
-        ];
+        // CONFIGURATION
+        const CONFIG = {
+            username: 'marianjosephjeffrey',
+            repo: 'marianjosephjeffrey.github.io',
+            branch: 'main',
+            folders: ['KC7', 'TryHackMe'] // Folders containing writeups
+        };
+
+        let writeups = [];
+
+        // Fetch writeups from GitHub folders
+        async function fetchWriteupsFromFolders() {
+            const allWriteups = [];
+
+            for (const folder of CONFIG.folders) {
+                try {
+                    const apiUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${folder}?ref=${CONFIG.branch}`;
+                    const response = await fetch(apiUrl);
+                    
+                    if (!response.ok) continue;
+                    
+                    const files = await response.json();
+                    
+                    // Filter HTML files
+                    const htmlFiles = files.filter(file => 
+                        file.type === 'file' && 
+                        (file.name.endsWith('.html') || file.name.endsWith('.htm'))
+                    );
+
+                    // Process each HTML file
+                    for (const file of htmlFiles) {
+                        // Fetch file content to check for metadata
+                        try {
+                            const contentResponse = await fetch(file.download_url);
+                            const content = await contentResponse.text();
+                            
+                            // Parse metadata from HTML comments
+                            const metadata = parseMetadata(content);
+                            
+                            // Generate title from filename if no metadata
+                            const title = metadata.title || file.name
+                                .replace(/\.html?$/, '')
+                                .replace(/[-_]/g, ' ');
+
+                            allWriteups.push({
+                                title: title,
+                                filename: `${folder}/${file.name}`,
+                                difficulty: metadata.difficulty || (folder === 'KC7' ? 'medium' : 'easy'),
+                                category: metadata.category || (folder === 'KC7' ? 'Digital Forensics' : 'TryHackMe Challenge'),
+                                description: metadata.description || `Security writeup from ${folder}`,
+                                tools: metadata.tools || [],
+                                date: metadata.date || new Date().toISOString().split('T')[0],
+                                folder: folder
+                            });
+                        } catch (error) {
+                            console.error(`Error fetching ${file.name}:`, error);
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error fetching folder ${folder}:`, error);
+                }
+            }
+
+            return allWriteups;
+        }
+
+        // Parse metadata from HTML comments
+        function parseMetadata(htmlContent) {
+            const metaMatch = htmlContent.match(/<!--\s*WRITEUP_META\s*([\s\S]*?)-->/);
+            
+            if (!metaMatch) return {};
+            
+            const metaText = metaMatch[1];
+            const metadata = {};
+            
+            metaText.split('\n').forEach(line => {
+                const [key, ...valueParts] = line.split(':');
+                if (key && valueParts.length > 0) {
+                    const trimmedKey = key.trim();
+                    const trimmedValue = valueParts.join(':').trim();
+                    
+                    if (trimmedKey && trimmedValue) {
+                        if (trimmedKey === 'tools' || trimmedKey === 'tags') {
+                            metadata[trimmedKey] = trimmedValue.split(',').map(item => item.trim());
+                        } else {
+                            metadata[trimmedKey] = trimmedValue;
+                        }
+                    }
+                }
+            });
+            
+            return metadata;
+        }
 
         // Render writeups
         function renderWriteups(filteredWriteups) {
@@ -541,8 +610,28 @@
             `).join('');
         }
 
-        // Initial render
-        renderWriteups(writeups);
+        // Initialize page
+        async function initializePage() {
+            // Show loading state
+            const grid = document.getElementById('writeups-grid');
+            grid.innerHTML = `
+                <div class="no-results">
+                    <h3>Loading writeups...</h3>
+                    <p style="font-family: 'Fira Code', monospace;">⏳ Fetching from KC7 and TryHackMe folders</p>
+                </div>
+            `;
+
+            // Fetch writeups
+            writeups = await fetchWriteupsFromFolders();
+            
+            // Sort by date (newest first)
+            writeups.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Render
+            renderWriteups(writeups);
+
+            console.log(`✅ Loaded ${writeups.length} writeups from GitHub`);
+        }
 
         // Search functionality
         document.getElementById('search').addEventListener('input', function(e) {
@@ -575,6 +664,9 @@
                 renderWriteups(filtered);
             });
         });
+
+        // Initialize on page load
+        initializePage();
     </script>
 </body>
 </html>
