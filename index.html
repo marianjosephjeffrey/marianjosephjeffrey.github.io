@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Writeups | Marian John</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🛡️%3C/text%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-elevated: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-red: #f85149;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-yellow: #d29922;
+            --border: #30363d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.01) 2px,
+                rgba(255, 255, 255, 0.01) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        /* Grid background */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem;
+        }
+
+        /* Header */
+        header {
+            padding: 4rem 0 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            text-decoration: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: var(--accent-red);
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .intro {
+            max-width: 800px;
+            margin: 0 auto 4rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Stats Banner */
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-family: 'Fira Code', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Search and Filter */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        input[type="search"] {
+            flex: 1;
+            min-width: 250px;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="search"]:focus {
+            outline: none;
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 2px rgba(248, 81, 73, 0.1);
+        }
+
+        input[type="search"]::placeholder {
+            color: var(--text-muted);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .filter-btn {
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            background: rgba(248, 81, 73, 0.05);
+        }
+
+        /* Writeups Grid */
+        .writeups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .writeup-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .writeup-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .writeup-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-red);
+            box-shadow: 0 10px 40px rgba(248, 81, 73, 0.15);
+        }
+
+        .writeup-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .writeup-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .writeup-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.35rem 0.85rem;
+            font-size: 0.75rem;
+            font-family: 'Fira Code', monospace;
+            border: 1px solid;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.easy {
+            background: rgba(63, 185, 80, 0.1);
+            color: var(--accent-green);
+            border-color: rgba(63, 185, 80, 0.3);
+        }
+
+        .badge.medium {
+            background: rgba(210, 153, 34, 0.1);
+            color: var(--accent-yellow);
+            border-color: rgba(210, 153, 34, 0.3);
+        }
+
+        .badge.hard {
+            background: rgba(248, 81, 73, 0.1);
+            color: var(--accent-red);
+            border-color: rgba(248, 81, 73, 0.3);
+        }
+
+        .badge.category {
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--accent-blue);
+            border-color: rgba(88, 166, 255, 0.3);
+        }
+
+        .writeup-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-tag {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.7rem;
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            color: var(--accent-blue);
+        }
+
+        .writeup-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .date {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .read-link {
+            color: var(--accent-green);
+            text-decoration: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .read-link:hover {
+            color: var(--accent-red);
+            transform: translateX(5px);
+        }
+
+        .read-link::before {
+            content: '→ ';
+        }
+
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 6rem;
+            padding: 3rem 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .writeups-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            input[type="search"] {
+                width: 100%;
+            }
+
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .filter-btn {
+                flex: 1;
+                padding: 0.85rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .writeup-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .writeup-card:nth-child(1) { animation-delay: 0.1s; }
+        .writeup-card:nth-child(2) { animation-delay: 0.2s; }
+        .writeup-card:nth-child(3) { animation-delay: 0.3s; }
+        .writeup-card:nth-child(4) { animation-delay: 0.4s; }
+        .writeup-card:nth-child(5) { animation-delay: 0.5s; }
+        .writeup-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="https://marianjosephjeffrey.com" class="back-link">← Back to Portfolio</a>
+            <h1>Security Writeups</h1>
+            <p class="subtitle">TryHackMe • CTF Challenges • Penetration Testing</p>
+            <p class="intro">
+                Comprehensive documentation of my security challenges, capture-the-flag competitions, and penetration testing exercises. 
+                Each writeup includes detailed methodology, screenshots, tool usage, and key learnings.
+            </p>
+        </header>
+
+        <div class="stats-banner">
+            <div class="stat-item">
+                <div class="stat-value" id="total-writeups">0</div>
+                <div class="stat-label">Total Writeups</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">TOP 1%</div>
+                <div class="stat-label">TryHackMe Rank</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">TOP 11%</div>
+                <div class="stat-label">NCL CTF Spring 2025</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="search" id="search" placeholder="🔍 Search writeups...">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="easy">Easy</button>
+                <button class="filter-btn" data-filter="medium">Medium</button>
+                <button class="filter-btn" data-filter="hard">Hard</button>
+            </div>
+        </div>
+
+        <div class="writeups-grid" id="writeups-grid">
+            <!-- Writeups will be loaded here by JavaScript -->
+        </div>
+
+        <footer>
+            <p>© 2026 Marian John • Built with security in mind 🛡️</p>
+        </footer>
+    </div>
+
+    <script>
+        // WRITEUPS DATA
+        // Add metadata for each of your writeup files here
+        const writeups = [
+            {
+                title: "KC7 - A Rap Beef",
+                filename: "KC7 - A Rap Beef.html",
+                difficulty: "medium",
+                category: "Digital Forensics",
+                description: "Investigation of a rap beef incident using digital forensics techniques, analyzing communication patterns and metadata.",
+                tools: ["Wireshark", "Log Analysis", "OSINT"],
+                date: "2024-02-15"
+            },
+            // Add more writeups here as you create them
+            // Example:
+            // {
+            //     title: "OWASP Top 10",
+            //     filename: "owasp-top-10.html",
+            //     difficulty: "medium",
+            //     category: "Web Security",
+            //     description: "Comprehensive exploration of OWASP Top 10 vulnerabilities",
+            //     tools: ["Burp Suite", "SQLmap", "ZAP"],
+            //     date: "2024-01-20"
+            // }
+        ];
+
+        // Render writeups
+        function renderWriteups(filteredWriteups) {
+            const grid = document.getElementById('writeups-grid');
+            const totalCount = document.getElementById('total-writeups');
+            
+            totalCount.textContent = writeups.length;
+
+            if (filteredWriteups.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-results">
+                        <h3>No writeups found</h3>
+                        <p>Try adjusting your search or filters</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredWriteups.map(writeup => `
+                <div class="writeup-card" onclick="window.location.href='${encodeURIComponent(writeup.filename)}'">
+                    <h3>${writeup.title}</h3>
+                    <div class="writeup-meta">
+                        <span class="badge ${writeup.difficulty}">${writeup.difficulty}</span>
+                        <span class="badge category">${writeup.category}</span>
+                    </div>
+                    <p class="writeup-description">${writeup.description}</p>
+                    ${writeup.tools && writeup.tools.length > 0 ? `
+                        <div class="tools">
+                            ${writeup.tools.map(tool => `<span class="tool-tag">${tool}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="writeup-footer">
+                        <span class="date">${new Date(writeup.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <span class="read-link">Read Writeup</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initial render
+        renderWriteups(writeups);
+
+        // Search functionality
+        document.getElementById('search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const filtered = writeups.filter(w => 
+                w.title.toLowerCase().includes(query) ||
+                w.description.toLowerCase().includes(query) ||
+                w.category.toLowerCase().includes(query) ||
+                (w.tools && w.tools.some(tool => tool.toLowerCase().includes(query)))
+            );
+            renderWriteups(filtered);
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active state
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Clear search
+                document.getElementById('search').value = '';
+
+                // Filter writeups
+                const filter = this.dataset.filter;
+                const filtered = filter === 'all' 
+                    ? writeups 
+                    : writeups.filter(w => w.difficulty === filter);
+                
+                renderWriteups(filtered);
+            });
+        });
+    </script>
+</body>
+</html>
