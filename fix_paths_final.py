@@ -67,7 +67,7 @@ def main():
     print("🔧 Adding Folder Prefix to Image Paths")
     print("=" * 70)
     
-    folders = ['TryHackMe', 'KC7']
+    folders = ['TryHackMe', 'KC7', 'HackTheBox']
     total_fixed = 0
     total_files = 0
     
