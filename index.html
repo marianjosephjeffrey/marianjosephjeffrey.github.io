@@ -526,52 +526,76 @@
                 description: '',
                 difficulty: 'Medium',
                 categories: [],
-                skills: []
+                skills: [],
+                platform: 'Unknown'
             };
             
-            // Extract title
-            const h1 = doc.querySelector('h1');
+            // Extract title from h1
+            const h1 = doc.querySelector('h1.page-title');
             if (h1) {
                 metadata.title = h1.textContent.trim();
             } else {
                 metadata.title = decodeURIComponent(filename.replace(/\.html?$/i, '')).replace(/%20/g, ' ');
             }
             
-            // Look for Notion-style property tables
-            const cells = doc.querySelectorAll('td, th, .property, [class*="property"]');
+            // Extract metadata from Notion property table
+            const propertyRows = doc.querySelectorAll('tr.property-row');
             
-            cells.forEach((cell, i) => {
-                const text = cell.textContent.toLowerCase();
-                const nextCell = cells[i + 1];
+            propertyRows.forEach(row => {
+                const iconSpan = row.querySelector('span.icon.property-icon');
+                const valueSpan = row.querySelector('span.selected-value');
                 
-                if (text.includes('description') && nextCell) {
-                    const desc = nextCell.textContent.trim();
-                    if (desc && desc.length > 10 && desc.length < 300) {
-                        metadata.description = desc;
-                    }
+                if (!iconSpan || !valueSpan) return;
+                
+                const propertyName = iconSpan.nextSibling?.textContent?.trim() || '';
+                const propertyValue = valueSpan.textContent.trim();
+                
+                // Platform
+                if (propertyName.toLowerCase().includes('platform')) {
+                    metadata.platform = propertyValue;
                 }
                 
-                if (text.includes('difficulty') && nextCell) {
-                    const diff = nextCell.textContent.trim();
-                    if (diff.match(/easy/i)) metadata.difficulty = 'Easy';
-                    else if (diff.match(/medium/i)) metadata.difficulty = 'Medium';
-                    else if (diff.match(/hard/i)) metadata.difficulty = 'Hard';
+                // Description
+                if (propertyName.toLowerCase().includes('description')) {
+                    metadata.description = propertyValue;
                 }
                 
-                if (text.includes('category') && nextCell) {
-                    const cats = nextCell.textContent.split(',').map(c => c.trim()).filter(c => c && c.length < 30);
-                    metadata.categories = cats.slice(0, 3);
+                // Difficulty
+                if (propertyName.toLowerCase().includes('difficulty')) {
+                    metadata.difficulty = propertyValue;
                 }
                 
-                if (text.includes('skills') && nextCell) {
-                    const skills = nextCell.textContent.split(',').map(s => s.trim()).filter(s => s && s.length < 30);
-                    metadata.skills = skills.slice(0, 3);
+                // Category (can have multiple values)
+                if (propertyName.toLowerCase().includes('category')) {
+                    // Multiple values might be in separate spans
+                    const allValues = row.querySelectorAll('span.selected-value');
+                    metadata.categories = Array.from(allValues).map(v => v.textContent.trim()).filter(v => v);
+                }
+                
+                // Skills Learned
+                if (propertyName.toLowerCase().includes('skill')) {
+                    const allValues = row.querySelectorAll('span.selected-value');
+                    metadata.skills = Array.from(allValues).map(v => v.textContent.trim()).filter(v => v);
                 }
             });
             
-            // Fallback description
+            // Also check for multi-select rows (categories/skills often use this)
+            const multiSelectRows = doc.querySelectorAll('tr.property-row-multi_select');
+            multiSelectRows.forEach(row => {
+                const values = row.querySelectorAll('span.selected-value');
+                const propertyName = row.querySelector('span.icon.property-icon')?.nextSibling?.textContent?.trim() || '';
+                
+                if (propertyName.toLowerCase().includes('category')) {
+                    metadata.categories = Array.from(values).map(v => v.textContent.trim()).filter(v => v);
+                }
+                if (propertyName.toLowerCase().includes('skill')) {
+                    metadata.skills = Array.from(values).map(v => v.textContent.trim()).filter(v => v);
+                }
+            });
+            
+            // Fallback description from first paragraph
             if (!metadata.description) {
-                const firstP = doc.querySelector('p');
+                const firstP = doc.querySelector('div.page-body p');
                 if (firstP && firstP.textContent.length > 20) {
                     metadata.description = firstP.textContent.trim().substring(0, 200);
                 }
@@ -580,18 +604,22 @@
             return metadata;
         }
 
-        // Fetch writeups from a folder
-        async function fetchWriteupsFromFolder(folder) {
+        // Fetch all writeups from root directory
+        async function fetchAllWriteups() {
             const writeups = [];
             
             try {
-                const apiUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${folder}?ref=${CONFIG.branch}`;
+                const apiUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents?ref=${CONFIG.branch}`;
                 const response = await fetch(apiUrl);
                 
                 if (!response.ok) return writeups;
                 
                 const files = await response.json();
-                const htmlFiles = files.filter(f => f.type === 'file' && (f.name.endsWith('.html') || f.name.endsWith('.htm')));
+                const htmlFiles = files.filter(f => 
+                    f.type === 'file' && 
+                    (f.name.endsWith('.html') || f.name.endsWith('.htm')) &&
+                    f.name.toLowerCase() !== 'index.html'
+                );
 
                 for (const file of htmlFiles) {
                     try {
@@ -603,18 +631,44 @@
                         writeups.push({
                             ...metadata,
                             filename: file.name,
-                            url: `${folder}/${encodeURIComponent(file.name)}`,
-                            folder: folder
+                            url: encodeURIComponent(file.name)
                         });
                     } catch (error) {
                         console.error(`Error processing ${file.name}:`, error);
                     }
                 }
             } catch (error) {
-                console.error(`Error fetching ${folder}:`, error);
+                console.error('Error fetching writeups:', error);
             }
             
             return writeups;
+        }
+
+        // Group writeups by platform
+        function groupByPlatform(writeups) {
+            const grouped = {
+                'TryHackMe': [],
+                'KC7': [],
+                'HackTheBox': []
+            };
+            
+            writeups.forEach(writeup => {
+                const platform = writeup.platform;
+                
+                // Match platform to our categories
+                if (platform.toLowerCase().includes('tryhackme')) {
+                    grouped['TryHackMe'].push(writeup);
+                } else if (platform.toLowerCase().includes('kc7')) {
+                    grouped['KC7'].push(writeup);
+                } else if (platform.toLowerCase().includes('hackthebox') || platform.toLowerCase().includes('hack the box')) {
+                    grouped['HackTheBox'].push(writeup);
+                } else {
+                    // Default to TryHackMe if unknown
+                    grouped['TryHackMe'].push(writeup);
+                }
+            });
+            
+            return grouped;
         }
 
         // Render category card
@@ -717,15 +771,18 @@
             const platformsEl = document.getElementById('platforms-container');
             const totalEl = document.getElementById('total-writeups');
             
+            // Fetch all writeups from root
+            const allWriteups = await fetchAllWriteups();
+            
+            // Group by platform based on metadata
+            const groupedWriteups = groupByPlatform(allWriteups);
+            
             let totalCount = 0;
             let categoryHTML = '';
             let platformHTML = '';
             
-            const allWriteups = {};
-            
             for (const [platform, config] of Object.entries(CONFIG.platforms)) {
-                const writeups = await fetchWriteupsFromFolder(platform);
-                allWriteups[platform] = { writeups, config };
+                const writeups = groupedWriteups[platform] || [];
                 totalCount += writeups.length;
                 
                 // Build category cards
@@ -741,20 +798,12 @@
             categoriesEl.style.display = 'grid';
             totalEl.textContent = totalCount;
             
-            // Fix image loading - disable lazy loading
-            setTimeout(() => {
-                document.querySelectorAll('img').forEach(img => {
-                    img.loading = 'eager';
-                    // Force reload if src exists
-                    if (img.src) {
-                        const src = img.src;
-                        img.src = '';
-                        img.src = src;
-                    }
-                });
-            }, 1000);
-            
             console.log(`✅ Loaded ${totalCount} writeups`);
+            console.log('Breakdown:', {
+                TryHackMe: groupedWriteups['TryHackMe'].length,
+                KC7: groupedWriteups['KC7'].length,
+                HackTheBox: groupedWriteups['HackTheBox'].length
+            });
         }
 
         // Make functions globally available
