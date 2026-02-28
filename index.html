@@ -711,18 +711,8 @@
                     <h3>${writeup.title}</h3>
                     <div class="writeup-meta">
                         <span class="badge ${writeup.difficulty.toLowerCase()}">${writeup.difficulty}</span>
-                        ${writeup.categories.length > 0 ? writeup.categories.map(cat => 
-                            `<span class="badge" style="background: ${config.color}20; color: ${config.color}; border-color: ${config.color}60;">${cat}</span>`
-                        ).join('') : ''}
                     </div>
                     ${writeup.description ? `<p class="writeup-description">${writeup.description}</p>` : ''}
-                    ${writeup.skills.length > 0 ? `
-                        <div class="writeup-tags">
-                            ${writeup.skills.map(skill => 
-                                `<span class="tag" style="background: ${config.color}10; color: ${config.color}; border-color: ${config.color}40;">${skill}</span>`
-                            ).join('')}
-                        </div>
-                    ` : ''}
                 </div>
             `).join('');
             
