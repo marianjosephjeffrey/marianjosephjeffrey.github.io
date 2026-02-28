@@ -147,9 +147,98 @@
             color: var(--text-muted);
         }
 
+        /* Platform Category Cards */
+        .platform-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .category-card {
+            background: var(--bg-card);
+            border: 2px solid;
+            padding: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .category-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-title {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .category-count {
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+        }
+
+        .category-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .view-writeups-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-writeups-btn:hover {
+            transform: translateX(5px);
+        }
+
         /* Platform Sections */
         .platform-section {
             margin-bottom: 5rem;
+            display: none;
+        }
+
+        .platform-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .platform-header {
@@ -177,6 +266,24 @@
             font-family: 'Fira Code', monospace;
             font-size: 1.2rem;
             opacity: 0.7;
+        }
+
+        .back-to-categories {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: 'Fira Code', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-categories:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
         }
 
         /* Writeups Grid */
@@ -373,7 +480,10 @@
             <p>Loading writeups from GitHub...</p>
         </div>
 
-        <!-- Platform Sections (will be populated by JavaScript) -->
+        <!-- Category Cards (shown first) -->
+        <div id="categories-container" class="platform-categories" style="display: none;"></div>
+
+        <!-- Platform Sections (shown when category clicked) -->
         <div id="platforms-container"></div>
 
         <footer>
@@ -507,6 +617,32 @@
             return writeups;
         }
 
+        // Render category card
+        function renderCategoryCard(platform, writeups, config) {
+            const descriptions = {
+                'TryHackMe': 'Interactive cybersecurity challenges covering web exploitation, privilege escalation, and network security.',
+                'KC7': 'Advanced digital forensics and incident response challenges focusing on log analysis and threat hunting.',
+                'HackTheBox': 'Penetration testing labs with realistic vulnerable machines and security scenarios.'
+            };
+            
+            return `
+                <div class="category-card" 
+                     style="border-color: ${config.color};"
+                     onmouseover="this.style.boxShadow='0 15px 50px ${config.glowColor}'; this.querySelector('.category-card-before').style.background='${config.color}';"
+                     onmouseout="this.style.boxShadow='none';"
+                     onclick="showPlatform('${platform}')">
+                    <div class="category-card-before" style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: ${config.color}; transform: scaleX(0); transition: transform 0.3s;"></div>
+                    <div class="category-icon">${config.icon}</div>
+                    <h3 class="category-title" style="color: ${config.color};">${platform}</h3>
+                    <p class="category-count">${writeups.length} writeup${writeups.length !== 1 ? 's' : ''}</p>
+                    <p class="category-description">${descriptions[platform] || ''}</p>
+                    <div class="view-writeups-btn" style="color: ${config.color}; border-color: ${config.color};">
+                        View Writeups →
+                    </div>
+                </div>
+            `;
+        }
+
         // Render writeups for a platform
         function renderPlatform(platform, writeups, config) {
             if (writeups.length === 0) return '';
@@ -537,7 +673,10 @@
             `).join('');
             
             return `
-                <div class="platform-section">
+                <div class="platform-section" id="section-${platform}">
+                    <button class="back-to-categories" onclick="showCategories()">
+                        ← Back to Categories
+                    </button>
                     <div class="platform-header" style="border-color: ${config.color};">
                         <span class="platform-icon">${config.icon}</span>
                         <h2 class="platform-title" style="color: ${config.color};">${platform}</h2>
@@ -550,27 +689,77 @@
             `;
         }
 
+        // Navigation functions
+        function showCategories() {
+            document.getElementById('categories-container').style.display = 'grid';
+            document.querySelectorAll('.platform-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showPlatform(platform) {
+            document.getElementById('categories-container').style.display = 'none';
+            document.querySelectorAll('.platform-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const section = document.getElementById(`section-${platform}`);
+            if (section) {
+                section.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
         // Initialize
         async function init() {
             const loadingEl = document.getElementById('loading');
-            const containerEl = document.getElementById('platforms-container');
+            const categoriesEl = document.getElementById('categories-container');
+            const platformsEl = document.getElementById('platforms-container');
             const totalEl = document.getElementById('total-writeups');
             
             let totalCount = 0;
-            let html = '';
+            let categoryHTML = '';
+            let platformHTML = '';
+            
+            const allWriteups = {};
             
             for (const [platform, config] of Object.entries(CONFIG.platforms)) {
                 const writeups = await fetchWriteupsFromFolder(platform);
+                allWriteups[platform] = { writeups, config };
                 totalCount += writeups.length;
-                html += renderPlatform(platform, writeups, config);
+                
+                // Build category cards
+                categoryHTML += renderCategoryCard(platform, writeups, config);
+                
+                // Build platform sections
+                platformHTML += renderPlatform(platform, writeups, config);
             }
             
             loadingEl.style.display = 'none';
-            containerEl.innerHTML = html || '<div class="empty-state"><h3>No writeups found</h3><p>Check back soon!</p></div>';
+            categoriesEl.innerHTML = categoryHTML;
+            platformsEl.innerHTML = platformHTML;
+            categoriesEl.style.display = 'grid';
             totalEl.textContent = totalCount;
+            
+            // Fix image loading - disable lazy loading
+            setTimeout(() => {
+                document.querySelectorAll('img').forEach(img => {
+                    img.loading = 'eager';
+                    // Force reload if src exists
+                    if (img.src) {
+                        const src = img.src;
+                        img.src = '';
+                        img.src = src;
+                    }
+                });
+            }, 1000);
             
             console.log(`✅ Loaded ${totalCount} writeups`);
         }
+
+        // Make functions globally available
+        window.showCategories = showCategories;
+        window.showPlatform = showPlatform;
 
         init();
     </script>
