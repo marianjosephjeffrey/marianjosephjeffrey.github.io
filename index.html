@@ -75,12 +75,12 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 3rem;
+            padding: 0 2rem;
         }
 
         /* Header */
         header {
-            padding: 4rem 0 2rem;
+            padding: 3rem 0 2rem;
             text-align: center;
             margin-bottom: 3rem;
         }
@@ -94,40 +94,29 @@
             color: var(--accent-red);
             text-decoration: none;
             font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
         .back-link:hover {
             background: var(--accent-red);
             color: var(--bg-dark);
-            transform: translateY(-2px);
         }
 
         h1 {
-            font-size: clamp(3rem, 8vw, 5rem);
+            font-size: clamp(2.5rem, 6vw, 4rem);
             font-weight: 700;
             margin-bottom: 1rem;
             letter-spacing: -2px;
             background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .subtitle {
             font-family: 'Fira Code', monospace;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--text-secondary);
             margin-bottom: 2rem;
-        }
-
-        .intro {
-            max-width: 800px;
-            margin: 0 auto 4rem;
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            line-height: 1.8;
         }
 
         /* Stats Banner */
@@ -143,12 +132,11 @@
 
         .stat-item {
             text-align: center;
-            padding: 1rem;
         }
 
         .stat-value {
             font-family: 'Fira Code', monospace;
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--accent-green);
             margin-bottom: 0.5rem;
@@ -159,71 +147,49 @@
             color: var(--text-muted);
         }
 
-        /* Search and Filter */
-        .controls {
+        /* Platform Sections */
+        .platform-section {
+            margin-bottom: 5rem;
+        }
+
+        .platform-header {
             display: flex;
+            align-items: center;
             gap: 1rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid;
         }
 
-        input[type="search"] {
-            flex: 1;
-            min-width: 250px;
-            padding: 1rem 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
+        .platform-icon {
+            font-size: 2.5rem;
+        }
+
+        .platform-title {
+            font-size: 2rem;
+            font-weight: 700;
             font-family: 'Fira Code', monospace;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+            letter-spacing: -1px;
         }
 
-        input[type="search"]:focus {
-            outline: none;
-            border-color: var(--accent-red);
-            box-shadow: 0 0 0 2px rgba(248, 81, 73, 0.1);
-        }
-
-        input[type="search"]::placeholder {
-            color: var(--text-muted);
-        }
-
-        .filter-group {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .filter-btn {
-            padding: 1rem 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
+        .platform-count {
+            margin-left: auto;
             font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            border-color: var(--accent-red);
-            color: var(--accent-red);
-            background: rgba(248, 81, 73, 0.05);
+            font-size: 1.2rem;
+            opacity: 0.7;
         }
 
         /* Writeups Grid */
         .writeups-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 2rem;
-            margin-bottom: 4rem;
         }
 
         .writeup-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 2.5rem;
+            padding: 2rem;
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
@@ -237,7 +203,6 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow));
             transform: scaleX(0);
             transform-origin: left;
             transition: transform 0.3s ease;
@@ -245,8 +210,6 @@
 
         .writeup-card:hover {
             transform: translateY(-5px);
-            border-color: var(--accent-red);
-            box-shadow: 0 10px 40px rgba(248, 81, 73, 0.15);
         }
 
         .writeup-card:hover::before {
@@ -254,22 +217,23 @@
         }
 
         .writeup-card h3 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             margin-bottom: 1rem;
             color: var(--text-primary);
             font-weight: 600;
+            line-height: 1.3;
         }
 
         .writeup-meta {
             display: flex;
             gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             flex-wrap: wrap;
         }
 
         .badge {
-            padding: 0.35rem 0.85rem;
-            font-size: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            font-size: 0.7rem;
             font-family: 'Fira Code', monospace;
             border: 1px solid;
             text-transform: uppercase;
@@ -294,78 +258,58 @@
             border-color: rgba(248, 81, 73, 0.3);
         }
 
-        .badge.category {
-            background: rgba(88, 166, 255, 0.1);
-            color: var(--accent-blue);
-            border-color: rgba(88, 166, 255, 0.3);
-        }
-
         .writeup-description {
             color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            line-height: 1.7;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .tools {
+        .writeup-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
+            margin-top: 1rem;
         }
 
-        .tool-tag {
+        .tag {
             font-family: 'Fira Code', monospace;
             font-size: 0.7rem;
-            padding: 0.3rem 0.7rem;
-            background: rgba(88, 166, 255, 0.1);
-            border: 1px solid rgba(88, 166, 255, 0.3);
-            color: var(--accent-blue);
+            padding: 0.25rem 0.6rem;
+            border: 1px solid;
         }
 
-        .writeup-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
         }
 
-        .date {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+        .loading-spinner {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
         }
 
-        .read-link {
-            color: var(--accent-green);
-            text-decoration: none;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .read-link:hover {
-            color: var(--accent-red);
-            transform: translateX(5px);
-        }
-
-        .read-link::before {
-            content: '→ ';
-        }
-
-        /* No results */
-        .no-results {
+        /* Empty state */
+        .empty-state {
             text-align: center;
             padding: 4rem;
             color: var(--text-muted);
-            grid-column: 1 / -1;
         }
 
-        .no-results h3 {
+        .empty-state h3 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
-            color: var(--text-secondary);
         }
 
         /* Footer */
@@ -385,50 +329,19 @@
                 padding: 0 1.5rem;
             }
 
-            h1 {
-                font-size: 2.5rem;
-            }
-
             .writeups-grid {
                 grid-template-columns: 1fr;
             }
 
-            .controls {
+            .platform-header {
                 flex-direction: column;
+                align-items: flex-start;
             }
 
-            input[type="search"] {
-                width: 100%;
-            }
-
-            .filter-group {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .filter-btn {
-                flex: 1;
-                padding: 0.85rem 1rem;
-                font-size: 0.85rem;
+            .platform-count {
+                margin-left: 0;
             }
         }
-
-        /* Loading Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .writeup-card {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        .writeup-card:nth-child(1) { animation-delay: 0.1s; }
-        .writeup-card:nth-child(2) { animation-delay: 0.2s; }
-        .writeup-card:nth-child(3) { animation-delay: 0.3s; }
-        .writeup-card:nth-child(4) { animation-delay: 0.4s; }
-        .writeup-card:nth-child(5) { animation-delay: 0.5s; }
-        .writeup-card:nth-child(6) { animation-delay: 0.6s; }
     </style>
 </head>
 <body>
@@ -436,16 +349,12 @@
         <header>
             <a href="https://marianjosephjeffrey.com" class="back-link">← Back to Portfolio</a>
             <h1>Security Writeups</h1>
-            <p class="subtitle">TryHackMe • CTF Challenges • Penetration Testing</p>
-            <p class="intro">
-                Comprehensive documentation of my security challenges, capture-the-flag competitions, and penetration testing exercises. 
-                Each writeup includes detailed methodology, screenshots, tool usage, and key learnings.
-            </p>
+            <p class="subtitle">TryHackMe • KC7 • Hack The Box</p>
         </header>
 
         <div class="stats-banner">
             <div class="stat-item">
-                <div class="stat-value" id="total-writeups">0</div>
+                <div class="stat-value" id="total-writeups">...</div>
                 <div class="stat-label">Total Writeups</div>
             </div>
             <div class="stat-item">
@@ -454,23 +363,18 @@
             </div>
             <div class="stat-item">
                 <div class="stat-value">TOP 11%</div>
-                <div class="stat-label">NCL CTF Spring 2025</div>
+                <div class="stat-label">NCL CTF</div>
             </div>
         </div>
 
-        <div class="controls">
-            <input type="search" id="search" placeholder="🔍 Search writeups...">
-            <div class="filter-group">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="easy">Easy</button>
-                <button class="filter-btn" data-filter="medium">Medium</button>
-                <button class="filter-btn" data-filter="hard">Hard</button>
-            </div>
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner">⏳</div>
+            <p>Loading writeups from GitHub...</p>
         </div>
 
-        <div class="writeups-grid" id="writeups-grid">
-            <!-- Writeups will be loaded here by JavaScript -->
-        </div>
+        <!-- Platform Sections (will be populated by JavaScript) -->
+        <div id="platforms-container"></div>
 
         <footer>
             <p>© 2026 Marian John • Built with security in mind 🛡️</p>
@@ -483,190 +387,192 @@
             username: 'marianjosephjeffrey',
             repo: 'marianjosephjeffrey.github.io',
             branch: 'main',
-            folders: ['KC7', 'TryHackMe'] // Folders containing writeups
-        };
-
-        let writeups = [];
-
-        // Fetch writeups from GitHub folders
-        async function fetchWriteupsFromFolders() {
-            const allWriteups = [];
-
-            for (const folder of CONFIG.folders) {
-                try {
-                    const apiUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${folder}?ref=${CONFIG.branch}`;
-                    const response = await fetch(apiUrl);
-                    
-                    if (!response.ok) continue;
-                    
-                    const files = await response.json();
-                    
-                    // Filter HTML files
-                    const htmlFiles = files.filter(file => 
-                        file.type === 'file' && 
-                        (file.name.endsWith('.html') || file.name.endsWith('.htm'))
-                    );
-
-                    // Process each HTML file
-                    for (const file of htmlFiles) {
-                        // Fetch file content to check for metadata
-                        try {
-                            const contentResponse = await fetch(file.download_url);
-                            const content = await contentResponse.text();
-                            
-                            // Parse metadata from HTML comments
-                            const metadata = parseMetadata(content);
-                            
-                            // Generate title from filename if no metadata
-                            const title = metadata.title || file.name
-                                .replace(/\.html?$/, '')
-                                .replace(/[-_]/g, ' ');
-
-                            allWriteups.push({
-                                title: title,
-                                filename: `${folder}/${file.name}`,
-                                difficulty: metadata.difficulty || (folder === 'KC7' ? 'medium' : 'easy'),
-                                category: metadata.category || (folder === 'KC7' ? 'Digital Forensics' : 'TryHackMe Challenge'),
-                                description: metadata.description || `Security writeup from ${folder}`,
-                                tools: metadata.tools || [],
-                                date: metadata.date || new Date().toISOString().split('T')[0],
-                                folder: folder
-                            });
-                        } catch (error) {
-                            console.error(`Error fetching ${file.name}:`, error);
-                        }
-                    }
-                } catch (error) {
-                    console.error(`Error fetching folder ${folder}:`, error);
+            platforms: {
+                'TryHackMe': {
+                    icon: '🎯',
+                    color: '#3fb950',
+                    glowColor: 'rgba(63, 185, 80, 0.15)'
+                },
+                'KC7': {
+                    icon: '🔍',
+                    color: '#58a6ff',
+                    glowColor: 'rgba(88, 166, 255, 0.15)'
+                },
+                'HackTheBox': {
+                    icon: '📦',
+                    color: '#f85149',
+                    glowColor: 'rgba(248, 81, 73, 0.15)'
                 }
             }
+        };
 
-            return allWriteups;
-        }
-
-        // Parse metadata from HTML comments
-        function parseMetadata(htmlContent) {
-            const metaMatch = htmlContent.match(/<!--\s*WRITEUP_META\s*([\s\S]*?)-->/);
+        // Extract metadata from Notion-style HTML
+        function extractMetadataFromHTML(htmlContent, filename) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
             
-            if (!metaMatch) return {};
+            let metadata = {
+                title: '',
+                description: '',
+                difficulty: 'Medium',
+                categories: [],
+                skills: []
+            };
             
-            const metaText = metaMatch[1];
-            const metadata = {};
+            // Extract title
+            const h1 = doc.querySelector('h1');
+            if (h1) {
+                metadata.title = h1.textContent.trim();
+            } else {
+                metadata.title = decodeURIComponent(filename.replace(/\.html?$/i, '')).replace(/%20/g, ' ');
+            }
             
-            metaText.split('\n').forEach(line => {
-                const [key, ...valueParts] = line.split(':');
-                if (key && valueParts.length > 0) {
-                    const trimmedKey = key.trim();
-                    const trimmedValue = valueParts.join(':').trim();
-                    
-                    if (trimmedKey && trimmedValue) {
-                        if (trimmedKey === 'tools' || trimmedKey === 'tags') {
-                            metadata[trimmedKey] = trimmedValue.split(',').map(item => item.trim());
-                        } else {
-                            metadata[trimmedKey] = trimmedValue;
-                        }
+            // Look for Notion-style property tables
+            const cells = doc.querySelectorAll('td, th, .property, [class*="property"]');
+            
+            cells.forEach((cell, i) => {
+                const text = cell.textContent.toLowerCase();
+                const nextCell = cells[i + 1];
+                
+                if (text.includes('description') && nextCell) {
+                    const desc = nextCell.textContent.trim();
+                    if (desc && desc.length > 10 && desc.length < 300) {
+                        metadata.description = desc;
                     }
                 }
+                
+                if (text.includes('difficulty') && nextCell) {
+                    const diff = nextCell.textContent.trim();
+                    if (diff.match(/easy/i)) metadata.difficulty = 'Easy';
+                    else if (diff.match(/medium/i)) metadata.difficulty = 'Medium';
+                    else if (diff.match(/hard/i)) metadata.difficulty = 'Hard';
+                }
+                
+                if (text.includes('category') && nextCell) {
+                    const cats = nextCell.textContent.split(',').map(c => c.trim()).filter(c => c && c.length < 30);
+                    metadata.categories = cats.slice(0, 3);
+                }
+                
+                if (text.includes('skills') && nextCell) {
+                    const skills = nextCell.textContent.split(',').map(s => s.trim()).filter(s => s && s.length < 30);
+                    metadata.skills = skills.slice(0, 3);
+                }
             });
+            
+            // Fallback description
+            if (!metadata.description) {
+                const firstP = doc.querySelector('p');
+                if (firstP && firstP.textContent.length > 20) {
+                    metadata.description = firstP.textContent.trim().substring(0, 200);
+                }
+            }
             
             return metadata;
         }
 
-        // Render writeups
-        function renderWriteups(filteredWriteups) {
-            const grid = document.getElementById('writeups-grid');
-            const totalCount = document.getElementById('total-writeups');
+        // Fetch writeups from a folder
+        async function fetchWriteupsFromFolder(folder) {
+            const writeups = [];
             
-            totalCount.textContent = writeups.length;
+            try {
+                const apiUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${folder}?ref=${CONFIG.branch}`;
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) return writeups;
+                
+                const files = await response.json();
+                const htmlFiles = files.filter(f => f.type === 'file' && (f.name.endsWith('.html') || f.name.endsWith('.htm')));
 
-            if (filteredWriteups.length === 0) {
-                grid.innerHTML = `
-                    <div class="no-results">
-                        <h3>No writeups found</h3>
-                        <p>Try adjusting your search or filters</p>
-                    </div>
-                `;
-                return;
+                for (const file of htmlFiles) {
+                    try {
+                        const contentResponse = await fetch(file.download_url);
+                        const content = await contentResponse.text();
+                        
+                        const metadata = extractMetadataFromHTML(content, file.name);
+                        
+                        writeups.push({
+                            ...metadata,
+                            filename: file.name,
+                            url: `${folder}/${encodeURIComponent(file.name)}`,
+                            folder: folder
+                        });
+                    } catch (error) {
+                        console.error(`Error processing ${file.name}:`, error);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error fetching ${folder}:`, error);
             }
+            
+            return writeups;
+        }
 
-            grid.innerHTML = filteredWriteups.map(writeup => `
-                <div class="writeup-card" onclick="window.location.href='${encodeURIComponent(writeup.filename)}'">
+        // Render writeups for a platform
+        function renderPlatform(platform, writeups, config) {
+            if (writeups.length === 0) return '';
+            
+            const cardsHTML = writeups.map(writeup => `
+                <div class="writeup-card" 
+                     style="border-color: ${config.color}20;"
+                     onclick="window.open('${writeup.url}', '_blank')"
+                     onmouseover="this.style.borderColor='${config.color}'; this.style.boxShadow='0 10px 40px ${config.glowColor}'"
+                     onmouseout="this.style.borderColor='${config.color}20'; this.style.boxShadow='none'">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: ${config.color};"></div>
                     <h3>${writeup.title}</h3>
                     <div class="writeup-meta">
-                        <span class="badge ${writeup.difficulty}">${writeup.difficulty}</span>
-                        <span class="badge category">${writeup.category}</span>
+                        <span class="badge ${writeup.difficulty.toLowerCase()}">${writeup.difficulty}</span>
+                        ${writeup.categories.length > 0 ? writeup.categories.map(cat => 
+                            `<span class="badge" style="background: ${config.color}20; color: ${config.color}; border-color: ${config.color}60;">${cat}</span>`
+                        ).join('') : ''}
                     </div>
-                    <p class="writeup-description">${writeup.description}</p>
-                    ${writeup.tools && writeup.tools.length > 0 ? `
-                        <div class="tools">
-                            ${writeup.tools.map(tool => `<span class="tool-tag">${tool}</span>`).join('')}
+                    ${writeup.description ? `<p class="writeup-description">${writeup.description}</p>` : ''}
+                    ${writeup.skills.length > 0 ? `
+                        <div class="writeup-tags">
+                            ${writeup.skills.map(skill => 
+                                `<span class="tag" style="background: ${config.color}10; color: ${config.color}; border-color: ${config.color}40;">${skill}</span>`
+                            ).join('')}
                         </div>
                     ` : ''}
-                    <div class="writeup-footer">
-                        <span class="date">${new Date(writeup.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                        <span class="read-link">Read Writeup</span>
-                    </div>
                 </div>
             `).join('');
-        }
-
-        // Initialize page
-        async function initializePage() {
-            // Show loading state
-            const grid = document.getElementById('writeups-grid');
-            grid.innerHTML = `
-                <div class="no-results">
-                    <h3>Loading writeups...</h3>
-                    <p style="font-family: 'Fira Code', monospace;">⏳ Fetching from KC7 and TryHackMe folders</p>
+            
+            return `
+                <div class="platform-section">
+                    <div class="platform-header" style="border-color: ${config.color};">
+                        <span class="platform-icon">${config.icon}</span>
+                        <h2 class="platform-title" style="color: ${config.color};">${platform}</h2>
+                        <span class="platform-count">${writeups.length} writeup${writeups.length !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="writeups-grid">
+                        ${cardsHTML}
+                    </div>
                 </div>
             `;
-
-            // Fetch writeups
-            writeups = await fetchWriteupsFromFolders();
-            
-            // Sort by date (newest first)
-            writeups.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            // Render
-            renderWriteups(writeups);
-
-            console.log(`✅ Loaded ${writeups.length} writeups from GitHub`);
         }
 
-        // Search functionality
-        document.getElementById('search').addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            const filtered = writeups.filter(w => 
-                w.title.toLowerCase().includes(query) ||
-                w.description.toLowerCase().includes(query) ||
-                w.category.toLowerCase().includes(query) ||
-                (w.tools && w.tools.some(tool => tool.toLowerCase().includes(query)))
-            );
-            renderWriteups(filtered);
-        });
+        // Initialize
+        async function init() {
+            const loadingEl = document.getElementById('loading');
+            const containerEl = document.getElementById('platforms-container');
+            const totalEl = document.getElementById('total-writeups');
+            
+            let totalCount = 0;
+            let html = '';
+            
+            for (const [platform, config] of Object.entries(CONFIG.platforms)) {
+                const writeups = await fetchWriteupsFromFolder(platform);
+                totalCount += writeups.length;
+                html += renderPlatform(platform, writeups, config);
+            }
+            
+            loadingEl.style.display = 'none';
+            containerEl.innerHTML = html || '<div class="empty-state"><h3>No writeups found</h3><p>Check back soon!</p></div>';
+            totalEl.textContent = totalCount;
+            
+            console.log(`✅ Loaded ${totalCount} writeups`);
+        }
 
-        // Filter functionality
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Update active state
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                // Clear search
-                document.getElementById('search').value = '';
-
-                // Filter writeups
-                const filter = this.dataset.filter;
-                const filtered = filter === 'all' 
-                    ? writeups 
-                    : writeups.filter(w => w.difficulty === filter);
-                
-                renderWriteups(filtered);
-            });
-        });
-
-        // Initialize on page load
-        initializePage();
+        init();
     </script>
 </body>
 </html>
