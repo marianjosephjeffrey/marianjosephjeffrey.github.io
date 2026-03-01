@@ -542,58 +542,71 @@
             const propertyRows = doc.querySelectorAll('tr.property-row');
             
             propertyRows.forEach(row => {
-                const iconSpan = row.querySelector('span.icon.property-icon');
-                const valueSpan = row.querySelector('span.selected-value');
+                const propertyIcon = row.querySelector('span.icon.property-icon');
+                if (!propertyIcon) return;
                 
-                if (!iconSpan || !valueSpan) return;
-                
-                const propertyName = iconSpan.nextSibling?.textContent?.trim() || '';
-                const propertyValue = valueSpan.textContent.trim();
-                
-                // Platform
-                if (propertyName.toLowerCase().includes('platform')) {
-                    metadata.platform = propertyValue;
+                // Get property name (text after the icon)
+                const thCell = row.querySelector('th');
+                let propertyName = '';
+                if (thCell) {
+                    // Remove the icon element to get just the text
+                    const clonedTh = thCell.cloneNode(true);
+                    const iconInClone = clonedTh.querySelector('span.icon');
+                    if (iconInClone) iconInClone.remove();
+                    propertyName = clonedTh.textContent.trim().toLowerCase();
                 }
                 
-                // Description
-                if (propertyName.toLowerCase().includes('description')) {
-                    metadata.description = propertyValue;
+                // Get property value from td
+                const tdCell = row.querySelector('td');
+                if (!tdCell) return;
+                
+                const propertyValue = tdCell.textContent.trim();
+                
+                // Description (property-row-text)
+                if (row.classList.contains('property-row-text') || propertyName.includes('description')) {
+                    if (propertyValue && propertyValue.length > 5) {
+                        metadata.description = propertyValue;
+                    }
+                }
+                
+                // Platform
+                if (propertyName.includes('platform')) {
+                    const selectedValue = tdCell.querySelector('span.selected-value');
+                    if (selectedValue) {
+                        metadata.platform = selectedValue.textContent.trim();
+                    }
                 }
                 
                 // Difficulty
-                if (propertyName.toLowerCase().includes('difficulty')) {
-                    metadata.difficulty = propertyValue;
+                if (propertyName.includes('difficulty')) {
+                    const selectedValue = tdCell.querySelector('span.selected-value');
+                    if (selectedValue) {
+                        metadata.difficulty = selectedValue.textContent.trim();
+                    }
                 }
                 
                 // Category (can have multiple values)
-                if (propertyName.toLowerCase().includes('category')) {
-                    // Multiple values might be in separate spans
-                    const allValues = row.querySelectorAll('span.selected-value');
+                if (propertyName.includes('category')) {
+                    const allValues = tdCell.querySelectorAll('span.selected-value');
                     metadata.categories = Array.from(allValues).map(v => v.textContent.trim()).filter(v => v);
                 }
                 
                 // Skills Learned
-                if (propertyName.toLowerCase().includes('skill')) {
-                    const allValues = row.querySelectorAll('span.selected-value');
+                if (propertyName.includes('skill')) {
+                    const allValues = tdCell.querySelectorAll('span.selected-value');
                     metadata.skills = Array.from(allValues).map(v => v.textContent.trim()).filter(v => v);
                 }
             });
             
-            // Also check for multi-select rows (categories/skills often use this)
-            const multiSelectRows = doc.querySelectorAll('tr.property-row-multi_select');
-            multiSelectRows.forEach(row => {
-                const values = row.querySelectorAll('span.selected-value');
-                const propertyName = row.querySelector('span.icon.property-icon')?.nextSibling?.textContent?.trim() || '';
-                
-                if (propertyName.toLowerCase().includes('category')) {
-                    metadata.categories = Array.from(values).map(v => v.textContent.trim()).filter(v => v);
+            // Fallback description from page description paragraph
+            if (!metadata.description) {
+                const pageDesc = doc.querySelector('p.page-description');
+                if (pageDesc && pageDesc.textContent.length > 20) {
+                    metadata.description = pageDesc.textContent.trim();
                 }
-                if (propertyName.toLowerCase().includes('skill')) {
-                    metadata.skills = Array.from(values).map(v => v.textContent.trim()).filter(v => v);
-                }
-            });
+            }
             
-            // Fallback description from first paragraph
+            // Last fallback - first paragraph in page body
             if (!metadata.description) {
                 const firstP = doc.querySelector('div.page-body p');
                 if (firstP && firstP.textContent.length > 20) {
