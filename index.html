@@ -673,17 +673,21 @@
             
             writeups.forEach(writeup => {
                 const platform = writeup.platform;
+                const platformLower = platform.toLowerCase();
                 
                 // Match platform to our categories
-                if (platform.toLowerCase().includes('tryhackme')) {
+                if (platformLower.includes('tryhackme') || platformLower.includes('thm')) {
                     grouped['TryHackMe'].push(writeup);
-                } else if (platform.toLowerCase().includes('kc7')) {
+                } else if (platformLower.includes('kc7')) {
                     grouped['KC7'].push(writeup);
-                } else if (platform.toLowerCase().includes('hackthebox') || platform.toLowerCase().includes('hack the box')) {
+                } else if (platformLower.includes('hackthebox') || platformLower.includes('hack the box') || platformLower.includes('htb')) {
                     grouped['HackTheBox'].push(writeup);
-                } else if (platform.toLowerCase().includes('ncl') || platform.toLowerCase().includes('national cyber league')) {
+                } else if (platformLower.includes('ncl') || platformLower.includes('national cyber league') || platformLower === 'ncl') {
                     grouped['NCL'].push(writeup);
+                    console.log('Found NCL writeup:', writeup.title);
                 } else {
+                    // Log unknown platforms for debugging
+                    console.log('Unknown platform:', platform, 'for writeup:', writeup.title);
                     // Default to TryHackMe if unknown
                     grouped['TryHackMe'].push(writeup);
                 }
@@ -732,6 +736,13 @@
         function renderPlatform(platform, writeups, config) {
             if (writeups.length === 0) return '';
             
+            const logos = {
+                'TryHackMe': 'thm.png',
+                'KC7': 'dark.png',
+                'HackTheBox': 'htb.jpg',
+                'NCL': 'ncl.png'
+            };
+            
             const cardsHTML = writeups.map(writeup => `
                 <div class="writeup-card" 
                      style="border-color: ${config.color}20;"
@@ -753,7 +764,9 @@
                         ← Back to Categories
                     </button>
                     <div class="platform-header" style="border-color: ${config.color};">
-                        <span class="platform-icon">${config.icon}</span>
+                        <span class="platform-icon">
+                            <img src="${logos[platform]}" alt="${platform}" style="width: 60px; height: 60px; object-fit: contain;">
+                        </span>
                         <h2 class="platform-title" style="color: ${config.color};">${platform}</h2>
                         <span class="platform-count">${writeups.length} writeup${writeups.length !== 1 ? 's' : ''}</span>
                     </div>
