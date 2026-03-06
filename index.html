@@ -512,6 +512,11 @@
                     icon: '📦',
                     color: '#f85149',
                     glowColor: 'rgba(248, 81, 73, 0.15)'
+                },
+                'NCL': {
+                    icon: '🚩',
+                    color: '#d29922',
+                    glowColor: 'rgba(210, 153, 34, 0.15)'
                 }
             }
         };
@@ -662,7 +667,8 @@
             const grouped = {
                 'TryHackMe': [],
                 'KC7': [],
-                'HackTheBox': []
+                'HackTheBox': [],
+                'NCL': []
             };
             
             writeups.forEach(writeup => {
@@ -675,6 +681,8 @@
                     grouped['KC7'].push(writeup);
                 } else if (platform.toLowerCase().includes('hackthebox') || platform.toLowerCase().includes('hack the box')) {
                     grouped['HackTheBox'].push(writeup);
+                } else if (platform.toLowerCase().includes('ncl') || platform.toLowerCase().includes('national cyber league')) {
+                    grouped['NCL'].push(writeup);
                 } else {
                     // Default to TryHackMe if unknown
                     grouped['TryHackMe'].push(writeup);
@@ -689,7 +697,15 @@
             const descriptions = {
                 'TryHackMe': 'Interactive cybersecurity challenges covering web exploitation, privilege escalation, and network security.',
                 'KC7': 'Advanced digital forensics and incident response challenges focusing on log analysis and threat hunting.',
-                'HackTheBox': 'Penetration testing labs with realistic vulnerable machines and security scenarios.'
+                'HackTheBox': 'Penetration testing labs with realistic vulnerable machines and security scenarios.',
+                'NCL': 'National Cyber League CTF competition challenges including cryptography, network traffic analysis, and more.'
+            };
+            
+            const logos = {
+                'TryHackMe': 'thm.png',
+                'KC7': 'dark.png',
+                'HackTheBox': 'htb.jpg',
+                'NCL': 'ncl.png'
             };
             
             return `
@@ -699,7 +715,9 @@
                      onmouseout="this.style.boxShadow='none';"
                      onclick="showPlatform('${platform}')">
                     <div class="category-card-before" style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: ${config.color}; transform: scaleX(0); transition: transform 0.3s;"></div>
-                    <div class="category-icon">${config.icon}</div>
+                    <div class="category-icon">
+                        <img src="${logos[platform]}" alt="" style="width: 120px; height: 80px; object-fit: contain;">
+                    </div>
                     <h3 class="category-title" style="color: ${config.color};">${platform}</h3>
                     <p class="category-count">${writeups.length} writeup${writeups.length !== 1 ? 's' : ''}</p>
                     <p class="category-description">${descriptions[platform] || ''}</p>
